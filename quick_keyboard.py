@@ -10,6 +10,7 @@ class KeyMonitor():
 
     def __init__(self, parent=None):
         self.__listener = ''
+        self.__search_combs = set()
         self.__pressed = set()
         self.__col_pressed = 0
         self.__is_get_comb = False
@@ -36,7 +37,13 @@ class KeyMonitor():
         self.__pressed.add(key)
         print('pressed = %s' % self.__pressed)
 
+        if self.__col_pressed > 1:
+            found = False
+            for search_comb in self.__search_combs:
+                if all(c in self.__pressed for c in search_comb):
+                    print('СОВПАЛО')
         # TODO реализовать функционал проверки совпадения комбинации со списком из БД
+
         # TODO реализовать функционал вывода списка наименований правил для выбора
         # TODO реализовать функционал вставки текста из БД в активное окно
 
@@ -44,8 +51,6 @@ class KeyMonitor():
             if self.__col_pressed > self.__max_get_comb:
                 self._max_combination = self.__pressed.copy()
                 self.__max_get_comb += 1
-
-
 
     def __on_release(self, key):
         if self.__is_get_comb and self.__col_pressed > 1:  # Отпустили хоть одну клавишу и получение комбинации включено - вернем макс. комб. клавиш
@@ -57,6 +62,12 @@ class KeyMonitor():
 
         if self.__col_pressed == 0:
             self.__pressed.clear()
+
+    def update_search_combs(self, rules_list):
+        self.__search_combs.clear()
+        for rule in rules_list:
+            self.__search_combs.add(rule[1])
+        print(self.__search_combs)
 
 
     def get_combination(self):

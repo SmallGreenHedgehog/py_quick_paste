@@ -1,5 +1,6 @@
 from pynput import keyboard
 
+
 class KeyMonitor():
     def start_listen(self):
         self.__listener.start()
@@ -40,8 +41,10 @@ class KeyMonitor():
                 self._max_combination = self.__pressed.copy()
                 self.__max_get_comb += 1
 
+                # TODO реализовать функционал проверки совпадения комбинации со списком из БД
+
     def __on_release(self, key):
-        if self.__is_get_comb:  # Отпустили хоть одну клавишу и получение комбинации включено - вернем макс. комб. клавиш
+        if self.__is_get_comb and self.__col_pressed > 1:  # Отпустили хоть одну клавишу и получение комбинации включено - вернем макс. комб. клавиш
             self.stop_get_comb()
 
         self.__col_pressed -= 1

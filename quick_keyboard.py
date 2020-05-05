@@ -36,12 +36,16 @@ class KeyMonitor():
         self.__pressed.add(key)
         print('pressed = %s' % self.__pressed)
 
+        # TODO реализовать функционал проверки совпадения комбинации со списком из БД
+        # TODO реализовать функционал вывода списка наименований правил для выбора
+        # TODO реализовать функционал вставки текста из БД в активное окно
+
         if self.__is_get_comb:  # Начинаем получать комбинацию
             if self.__col_pressed > self.__max_get_comb:
                 self._max_combination = self.__pressed.copy()
                 self.__max_get_comb += 1
 
-                # TODO реализовать функционал проверки совпадения комбинации со списком из БД
+
 
     def __on_release(self, key):
         if self.__is_get_comb and self.__col_pressed > 1:  # Отпустили хоть одну клавишу и получение комбинации включено - вернем макс. комб. клавиш

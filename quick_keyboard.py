@@ -23,6 +23,8 @@ class KeyMonitor():
         self.start_listen()
 
     def start_get_comb(self):
+        self.__pressed.clear()
+        self.__col_pressed = 0
         self._max_combination = set()
         self.__max_get_comb = 0
         self.__is_get_comb = True

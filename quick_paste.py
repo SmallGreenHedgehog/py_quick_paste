@@ -56,12 +56,15 @@ class ConfigWindowForm(QtWidgets.QWidget):
         edit_window.show()
 
     def remove_rule(self):
-        pass
-        # TODO реализовать функционал удаления правила
+        sel_row_num = self.ui.tableWidget.currentRow()
+        if not sel_row_num < 0:
+            sel_rule_id = int(self.ui.tableWidget.item(sel_row_num, 0).text())
+            if tray_icon_window.base.remove_rule(sel_rule_id):
+                self.update_table()
 
     def clear_rule(self):
-        print('Очищаем записи БД')
-        # TODO реализовать функционал очистки таблицы правил
+        if tray_icon_window.base.remove_all_rules():
+            self.update_table()
 
     def hide_window(self):
         self.hide()
@@ -83,7 +86,6 @@ class EditWindowForm(QtWidgets.QWidget):
         self.ui.pushButton_save.clicked.connect(self.save_rule)
         self.ui.pushButton_cancel.clicked.connect(self.cancel_rule)
 
-
     @property
     def edit_id(self):
         return self.__edit_id
@@ -103,18 +105,13 @@ class EditWindowForm(QtWidgets.QWidget):
         self.ui.label_comb.setText(str(self.__act_comb))
 
     def save_rule(self):
-        print('Пытаемся сохранить правило')
         if self.__rule_is_correct():
-            ok = False
-            if self.edit_id != None:
-                pass
-                # TODO реализовать изменение данных
-            else:
-                ok = tray_icon_window.base.set_rule(
-                    self.ui.label_comb.text().strip()
-                    , self.ui.lineEdit.text().strip()
-                    , self.ui.plainTextEdit.toPlainText()
-                )
+            ok = tray_icon_window.base.set_rule(
+                self.ui.label_comb.text().strip()
+                , self.ui.lineEdit.text().strip()
+                , self.ui.plainTextEdit.toPlainText()
+                , self.__edit_id
+            )
 
             if ok:
                 conf_window.update_table()
@@ -130,10 +127,7 @@ class EditWindowForm(QtWidgets.QWidget):
             msg_box.setIcon(QtWidgets.QMessageBox.Critical)
             msg_box.show()
 
-            print('Правило заполнено не корректно')
-
     def cancel_rule(self):
-        print('Отменяем сохранение правила')
         self.hide()
         tray_icon_window.main_window_action.setChecked(True)
         conf_window.show()

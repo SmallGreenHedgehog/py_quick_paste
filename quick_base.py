@@ -1,6 +1,7 @@
 import sqlite3
 import traceback
 from time import sleep
+from pynput import keyboard
 
 
 class BaseManager():
@@ -84,10 +85,9 @@ class BaseManager():
 
     def set_rule(self, rule_comb, rule_name, rule_text, rule_id=None):
         if rule_id != None:  # обновляем правило
-            req_text = ''
+            req_text = 'UPDATE RULES SET Combination=?, Name=?, TXT=? WHERE Id=%s' % rule_id
         else:  # добавляем новое правило
-            req_text = 'INSERT INTO RULES (Combination, Name, TXT) VALUES ("%s", "%s", "%s")' % (
-                rule_comb, rule_name, rule_text)
+            req_text = 'INSERT INTO RULES (Combination, Name, TXT) VALUES (?, ?, ?)'
 
         sqlite_base = sqlite3.connect(self.__conf_file_name)
         cursor = sqlite_base.cursor()
@@ -101,7 +101,7 @@ class BaseManager():
             attempts_num += 1
             ok = True
             try:
-                cursor.execute(req_text)
+                cursor.execute(req_text, (rule_comb, rule_name, rule_text))
             except:
                 ok = False
                 print(traceback.print_exc())
@@ -181,6 +181,85 @@ class BaseManager():
         sqlite_base = ''
         return result
 
+    def remove_rule(self, rule_id):
+        if rule_id != None:
+            sqlite_base = sqlite3.connect(self.__conf_file_name)
+            cursor = sqlite_base.cursor()
+
+            # Создаем таблицу параметров
+            ok = False
+            attempts_q = 5
+            attempts_num = 0;
+
+            while (attempts_num < attempts_q) and (not ok):
+                attempts_num += 1
+                ok = True
+                try:
+                    cursor.execute('DELETE FROM RULES WHERE Id=%s' % rule_id)
+                except:
+                    ok = False
+                    print(traceback.print_exc())
+                    sleep(1)
+            if ok:
+                ok = False
+                attempts_q = 5
+                attempts_num = 0;
+
+                while (attempts_num < attempts_q) and (not ok):
+                    attempts_num += 1
+                    ok = True
+                    try:
+                        sqlite_base.commit()
+                    except:
+                        ok = False
+                        print(traceback.print_exc())
+                        sleep(1)
+
+            cursor = ''
+            sqlite_base.close()
+            sqlite_base = ''
+
+            return ok
+
+    def remove_all_rules(self):
+        sqlite_base = sqlite3.connect(self.__conf_file_name)
+        cursor = sqlite_base.cursor()
+
+        # Создаем таблицу параметров
+        ok = False
+        attempts_q = 5
+        attempts_num = 0;
+
+        while (attempts_num < attempts_q) and (not ok):
+            attempts_num += 1
+            ok = True
+            try:
+                cursor.execute('DELETE FROM RULES')
+            except:
+                ok = False
+                print(traceback.print_exc())
+                sleep(1)
+        if ok:
+            ok = False
+            attempts_q = 5
+            attempts_num = 0;
+
+            while (attempts_num < attempts_q) and (not ok):
+                attempts_num += 1
+                ok = True
+                try:
+                    sqlite_base.commit()
+                except:
+                    ok = False
+                    print(traceback.print_exc())
+                    sleep(1)
+
+        cursor = ''
+        sqlite_base.close()
+        sqlite_base = ''
+
+        return ok
+
     def __init_base(self):
         sqlite_base = sqlite3.connect(self.__conf_file_name)
         cursor = sqlite_base.cursor()
@@ -228,8 +307,10 @@ class BaseManager():
             self.__first_start = not bool(self.get_parameter('not_firts_start'))
 
             if self.__first_start:  # Это первый запуск программы, заполним дефолтными значениями
-                comb_text_view = "{<Key.ctrl: <59>>, '\x14'}"
-                if self.set_rule(comb_text_view, 'Тестовая комбинация', 'Текст тестовой комбинации'):
+                def_comb = set()
+                def_comb.add(keyboard.Key.ctrl_l)
+                def_comb.add('\x14')
+                if self.set_rule(str(def_comb), 'Тестовая комбинация', 'Текст тестовой комбинации'):
                     self.set_parameter('not_firts_start', 'True')
 
         cursor = ''

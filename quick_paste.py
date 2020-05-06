@@ -151,6 +151,8 @@ class EditWindowForm(QtWidgets.QWidget):
 
 
 class SelectWindowForm(QtWidgets.QWidget):
+    last_comb_found = set()
+
     def __init__(self):
         super(SelectWindowForm, self).__init__()
 
@@ -159,7 +161,17 @@ class SelectWindowForm(QtWidgets.QWidget):
 
         # Присоединяем слоты
 
+    def closeEvent(self, event: QtGui.QCloseEvent):
+        event.ignore()
+        self.hide()
+
+    def showEvent(self, event: QtGui.QShowEvent):
+        self.ui.listWidget.clear()
+        self.ui.listWidget.addItem(str(self.last_comb_found))
+        # TODO реализовать функционал заполнения списка наименованиями шаблонов с найденной комбинацией
+        # TODO реализовать функционал показа списка выбора в области курсора мыши, либо рядом с полем ввода
         # TODO реализовать функционал вставки текста из БД в активное окно
+        pass
 
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
@@ -182,10 +194,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.keys.comb_found.connect(self.select_template)
 
     def select_template(self, last_comb_found):
-        # TODO реализовать функционал заполнения списка наименованиями шаблонов с найденной комбинацией
-        # TODO реализовать функционал показа списка выбора в области курсора мыши, либо рядом с полем ввода
-
-        sel_window.ui.listWidget.addItem(str(last_comb_found))
+        sel_window.last_comb_found = last_comb_found
         sel_window.show()
 
     def main_window_show(self):

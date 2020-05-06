@@ -32,7 +32,7 @@ class ConfigWindowForm(QtWidgets.QWidget):
         self.ui.tableWidget.setRowCount(0)
         rules_list = tray_icon_window.base.get_all_rules()
 
-        # Обновим так же списко искомых комбинаций, чтобы не дергать лишний раз базу
+        # Обновим так же список искомых комбинаций, чтобы не дергать лишний раз базу
         tray_icon_window.keys.update_search_combs(rules_list)
 
         row_pos = 0

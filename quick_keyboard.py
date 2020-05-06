@@ -10,7 +10,7 @@ class KeyMonitor():
 
     def __init__(self, parent=None):
         self.__listener = ''
-        self.__search_combs = set()
+        self.__search_combs = []
         self.__pressed = set()
         self.__col_pressed = 0
         self.__is_get_comb = False
@@ -34,17 +34,15 @@ class KeyMonitor():
 
     def __on_press(self, key):
         self.__col_pressed += 1
-        self.__pressed.add(key)
+        self.__pressed.add(str(key))
         print('pressed = %s' % self.__pressed)
 
         if self.__col_pressed > 1:
-            found = False
             for search_comb in self.__search_combs:
-                if all(c in self.__pressed for c in search_comb):
-                    print('СОВПАЛО')
-        # TODO реализовать функционал проверки совпадения комбинации со списком из БД
+                if all(c in search_comb for c in self.__pressed):
+                    print('Найдена комбинация из списка!!!')
+                    # TODO реализовать функционал вывода списка наименований правил для выбора
 
-        # TODO реализовать функционал вывода списка наименований правил для выбора
         # TODO реализовать функционал вставки текста из БД в активное окно
 
         if self.__is_get_comb:  # Начинаем получать комбинацию
@@ -63,12 +61,18 @@ class KeyMonitor():
         if self.__col_pressed == 0:
             self.__pressed.clear()
 
+    def get_set_comb_from_str(self, src_str=''):
+        result = set()
+        parsed_list_str = src_str.replace('{','').replace('}','').replace('\'','').replace('\\\\','\\').split(', ')
+        for key in parsed_list_str:
+            result.add(key)
+        return result
+
     def update_search_combs(self, rules_list):
         self.__search_combs.clear()
         for rule in rules_list:
-            self.__search_combs.add(rule[1])
-        print(self.__search_combs)
-
+            search_comb = self.get_set_comb_from_str(rule[1])
+            self.__search_combs.append(search_comb)
 
     def get_combination(self):
         self.start_get_comb()

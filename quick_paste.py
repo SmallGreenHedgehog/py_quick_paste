@@ -2,6 +2,7 @@ import sys
 from PySide2 import QtWidgets, QtCore, QtGui
 from ui_files.config_window import Ui_Form as ConfWindow
 from ui_files.edit_comb_window import Ui_Form as EditWindow
+from ui_files.select_template_window import Ui_Form as SelectWindow
 from quick_keyboard import KeyMonitor
 from quick_base import BaseManager
 
@@ -149,6 +150,18 @@ class EditWindowForm(QtWidgets.QWidget):
             self.ui.plainTextEdit.clear()
 
 
+class SelectWindowForm(QtWidgets.QWidget):
+    def __init__(self):
+        super(SelectWindowForm, self).__init__()
+
+        self.ui = SelectWindow()
+        self.ui.setupUi(self)
+
+        # Присоединяем слоты
+
+        # TODO реализовать функционал вставки текста из БД в активное окно
+
+
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
     def __init__(self, parent=None):
         icon = QtGui.QIcon(r"ui_files/Icon.png")
@@ -166,6 +179,14 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
         self.base = BaseManager()
         self.keys = KeyMonitor()
+        self.keys.comb_found.connect(self.select_template)
+
+    def select_template(self, last_comb_found):
+        # TODO реализовать функционал заполнения списка наименованиями шаблонов с найденной комбинацией
+        # TODO реализовать функционал показа списка выбора в области курсора мыши, либо рядом с полем ввода
+
+        sel_window.ui.listWidget.addItem(str(last_comb_found))
+        sel_window.show()
 
     def main_window_show(self):
         if self.main_window_action.isChecked():
@@ -177,6 +198,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
 
+    sel_window = SelectWindowForm()
     tray_icon_window = SystemTrayIcon()
     conf_window = ConfigWindowForm()
     edit_window = EditWindowForm()

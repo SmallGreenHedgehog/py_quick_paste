@@ -161,10 +161,6 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.exit_action = self.menu.addAction("Выход")
         self.setContextMenu(self.menu)
 
-        self.select_menu = QtWidgets.QMenu(None)
-        self.select_menu.setAttribute(QtCore.Qt.WA_ShowWithoutActivating)
-        self.select_menu.setFocusPolicy(QtCore.Qt.NoFocus)
-
         # Присоединяем слоты
         self.main_window_action.triggered.connect(self.main_window_show)
         self.main_window_action.triggered.connect(self.main_window_show)
@@ -174,18 +170,17 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.keys = KeyMonitor()
         self.keys.comb_found.connect(self.select_template)
 
+    def eventFilter(self, watched, event):
+        print(str(event))
+        print(type(event))
+
     def select_template(self, last_comb_found):
-        self.select_menu.clear()
-        self.select_menu.move(QtGui.QCursor().pos())
-        self.select_menu_action = self.select_menu.addAction('Бла')
-        self.select_menu_action.triggered.connect(self.test_act)
-        self.select_menu.show()
+        print('COMBINATION SLOT FUNC')
 
-    def test_act(self):
-        pyperclip.copy('Это тестовый текст')
-        print(pyperclip.paste())
-
-        tray_icon_window.keys.ctrl_v()
+        # self.select_menu = MenuWithoutFocus()
+        # self.select_menu.addAction('TEST action')
+        # self.setContextMenu(self.select_menu)
+        # self.contextMenu().show()
 
     def main_window_show(self):
         if self.main_window_action.isChecked():

@@ -45,7 +45,8 @@ class KeyMonitor(QObject):
 
         if self.__col_pressed > 1:
             for search_comb in self.__search_combs:
-                if all(c in search_comb for c in self.__pressed):
+                print('all pressed in search = %s (search = "%s", pressed = "%s")' % (str(all(p in search_comb for p in self.__pressed)), search_comb, self.__pressed))
+                if all(p in search_comb for p in self.__pressed) and all(s in self.__pressed for s in search_comb):
                     self.__last_comb_found = search_comb.copy()
                     print('Найдена комбинация из списка ("%s")!!!' % self.__last_comb_found)
                     self.comb_found.emit(self.__last_comb_found)
@@ -68,9 +69,7 @@ class KeyMonitor(QObject):
 
     def get_set_comb_from_str(self, src_str=''):
         result = set()
-        parsed_list_str = src_str.replace('{', '').replace('}', '').replace('\'', '').replace('\\\\', '\\').split(', ')
-        for key in parsed_list_str:
-            result.add(key)
+        result = eval(src_str)
         return result
 
     def update_search_combs(self, rules_list):
@@ -78,6 +77,14 @@ class KeyMonitor(QObject):
         for rule in rules_list:
             search_comb = self.get_set_comb_from_str(rule[1])
             self.__search_combs.append(search_comb)
+
+    def ctrl_v(self):
+        cont = keyboard.Controller()
+        cont.press(keyboard.Key.cmd_l)
+        cont.press('v')
+        cont.release('v')
+        cont.release(keyboard.Key.cmd_l)
+        cont = ''
 
     def get_combination(self):
         self.start_get_comb()

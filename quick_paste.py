@@ -1,8 +1,8 @@
 import sys
+import pyperclip
 from PySide2 import QtWidgets, QtCore, QtGui
 from ui_files.config_window import Ui_Form as ConfWindow
 from ui_files.edit_comb_window import Ui_Form as EditWindow
-from ui_files.select_template_window import Ui_Form as SelectWindow
 from quick_keyboard import KeyMonitor
 from quick_base import BaseManager
 
@@ -150,39 +150,20 @@ class EditWindowForm(QtWidgets.QWidget):
             self.ui.plainTextEdit.clear()
 
 
-class SelectWindowForm(QtWidgets.QWidget):
-    last_comb_found = set()
-
-    def __init__(self):
-        super(SelectWindowForm, self).__init__()
-
-        self.ui = SelectWindow()
-        self.ui.setupUi(self)
-
-        # Присоединяем слоты
-
-    def closeEvent(self, event: QtGui.QCloseEvent):
-        event.ignore()
-        self.hide()
-
-    def showEvent(self, event: QtGui.QShowEvent):
-        self.ui.listWidget.clear()
-        self.ui.listWidget.addItem(str(self.last_comb_found))
-        # TODO реализовать функционал заполнения списка наименованиями шаблонов с найденной комбинацией
-        # TODO реализовать функционал показа списка выбора в области курсора мыши, либо рядом с полем ввода
-        # TODO реализовать функционал вставки текста из БД в активное окно
-        pass
-
-
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
     def __init__(self, parent=None):
         icon = QtGui.QIcon(r"ui_files/Icon.png")
         super(SystemTrayIcon, self).__init__(icon, parent)
+
         self.menu = QtWidgets.QMenu(parent)
         self.main_window_action = self.menu.addAction('Главное меню')
         self.main_window_action.setCheckable(True)
         self.exit_action = self.menu.addAction("Выход")
         self.setContextMenu(self.menu)
+
+        self.select_menu = QtWidgets.QMenu(None)
+        self.select_menu.setAttribute(QtCore.Qt.WA_ShowWithoutActivating)
+        self.select_menu.setFocusPolicy(QtCore.Qt.NoFocus)
 
         # Присоединяем слоты
         self.main_window_action.triggered.connect(self.main_window_show)
@@ -194,8 +175,17 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.keys.comb_found.connect(self.select_template)
 
     def select_template(self, last_comb_found):
-        sel_window.last_comb_found = last_comb_found
-        sel_window.show()
+        self.select_menu.clear()
+        self.select_menu.move(QtGui.QCursor().pos())
+        self.select_menu_action = self.select_menu.addAction('Бла')
+        self.select_menu_action.triggered.connect(self.test_act)
+        self.select_menu.show()
+
+    def test_act(self):
+        pyperclip.copy('Это тестовый текст')
+        print(pyperclip.paste())
+
+        tray_icon_window.keys.ctrl_v()
 
     def main_window_show(self):
         if self.main_window_action.isChecked():
@@ -207,7 +197,6 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
 
-    sel_window = SelectWindowForm()
     tray_icon_window = SystemTrayIcon()
     conf_window = ConfigWindowForm()
     edit_window = EditWindowForm()

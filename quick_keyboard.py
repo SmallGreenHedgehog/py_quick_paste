@@ -50,6 +50,7 @@ class KeyMonitor(QObject):
                 # print('all pressed in pressed = %s (search = "%s", pressed = "%s")' % (
                 #     str(all(s in self.__pressed for s in search_comb)),self.__pressed, search_comb))
                 if all(p in search_comb for p in self.__pressed) and all(s in self.__pressed for s in search_comb):
+                    print('Combination %s was found' % search_comb)
                     self.__last_comb_found = search_comb.copy()
                     self.comb_found.emit(self.__last_comb_found)
 

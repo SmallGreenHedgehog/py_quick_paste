@@ -45,10 +45,12 @@ class KeyMonitor(QObject):
 
         if self.__col_pressed > 1:
             for search_comb in self.__search_combs:
-                print('all pressed in search = %s (search = "%s", pressed = "%s")' % (str(all(p in search_comb for p in self.__pressed)), search_comb, self.__pressed))
+                # print('all pressed in search = %s (search = "%s", pressed = "%s")' % (
+                #     str(all(p in search_comb for p in self.__pressed)), search_comb, self.__pressed))
+                # print('all pressed in pressed = %s (search = "%s", pressed = "%s")' % (
+                #     str(all(s in self.__pressed for s in search_comb)),self.__pressed, search_comb))
                 if all(p in search_comb for p in self.__pressed) and all(s in self.__pressed for s in search_comb):
                     self.__last_comb_found = search_comb.copy()
-                    print('Найдена комбинация из списка ("%s")!!!' % self.__last_comb_found)
                     self.comb_found.emit(self.__last_comb_found)
 
         if self.__is_get_comb:  # Начинаем получать комбинацию

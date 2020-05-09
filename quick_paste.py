@@ -165,22 +165,24 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.main_window_action.triggered.connect(self.main_window_show)
         self.main_window_action.triggered.connect(self.main_window_show)
         self.exit_action.triggered.connect(QtCore.QCoreApplication.instance().quit)
+        # self.messageClicked.connect(self.message_clicked)
 
         self.base = BaseManager()
         self.keys = KeyMonitor()
         self.keys.comb_found.connect(self.select_template)
 
-    def eventFilter(self, watched, event):
-        print(str(event))
-        print(type(event))
-
     def select_template(self, last_comb_found):
+        # self.showMessage('Тестовый заголовок', 'Тестовое сообщение', self.icon(), 5000)
         print('COMBINATION SLOT FUNC')
+        self.contextMenu().showFullScreen()
+        self.contextMenu().popup(QtGui.QCursor.pos())
 
-        # self.select_menu = MenuWithoutFocus()
-        # self.select_menu.addAction('TEST action')
-        # self.setContextMenu(self.select_menu)
-        # self.contextMenu().show()
+        # self.contextMenu().popup(QtGui.QCursor.pos())
+
+
+    def message_clicked(self):
+        print('Message was clicked')
+        pass
 
     def main_window_show(self):
         if self.main_window_action.isChecked():

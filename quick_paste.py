@@ -181,22 +181,24 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         # os.system("""osascript -e '%s'""" % show_mess_script_text)
 
     def message_clicked(self, rule_id):
+        # TODO реализовать функционал установки настроек универсального доступа и формата уведомлений для приложения
+
         print('Message was clicked, rule_id = %s' % rule_id)
 
-        # close_script_text = '\n' \
-        #                     'tell application "System Events"\n' \
-        #                     '   tell process "NotificationCenter"\n' \
-        #                     '       set windowCount to count windows\n' \
-        #                     '       repeat with i from windowCount to 1 by -1\n' \
-        #                     '           if description of image 2 of window i is "PYTHON" then\n' \
-        #                     '               click button "Close" of window i\n' \
-        #                     '           end if\n' \
-        #                     '       end repeat\n' \
-        #                     '   end tell\n' \
-        #                     'end tell'
-        # print()
-        # print("""osascript -e '%s'""" % close_script_text)
-        # os.system("""osascript -e '%s'""" % close_script_text)
+        close_script_text = '\n' \
+                            'tell application "System Events"\n' \
+                            '   tell process "NotificationCenter"\n' \
+                            '       set windowCount to count windows\n' \
+                            '       repeat with i from windowCount to 1 by -1\n' \
+                            '           if description of image 2 of window i is "PYTHON" then\n' \
+                            '               click button "Закрыть" of window i\n' \
+                            '           end if\n' \
+                            '       end repeat\n' \
+                            '   end tell\n' \
+                            'end tell'
+        print()
+        print("""osascript -e '%s'""" % close_script_text)
+        os.system("""osascript -e '%s'""" % close_script_text)
 
     def main_window_show(self):
         if self.main_window_action.isChecked():

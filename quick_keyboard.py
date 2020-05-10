@@ -1,9 +1,16 @@
+# -*- coding: utf-8 -*-
+
 from pynput import keyboard
 from PySide2.QtCore import QObject, Signal
 
 
 class KeyMonitor(QObject):
     comb_found = Signal(enumerate)
+
+    def __clear_released(self):
+        self.__col_pressed = 0
+        self.__pressed.clear()
+        print('released combs was cleared')
 
     def start_listen(self):
         self.__listener.start()
@@ -20,7 +27,6 @@ class KeyMonitor(QObject):
         self.__col_pressed = 0
         self.__is_get_comb = False
         self.__max_key_count_comb = 0
-        self.__comb_timer_started = False
         self._max_combination = set()
         self.__last_comb_found = set()
         self.__listener = keyboard.Listener(
@@ -36,7 +42,6 @@ class KeyMonitor(QObject):
 
     def stop_get_comb(self):
         self.__is_get_comb = False
-        self.__comb_timer_started = False
 
     def __on_press(self, key):
         self.__col_pressed += 1
@@ -44,11 +49,8 @@ class KeyMonitor(QObject):
         print('pressed = %s' % self.__pressed)
 
         if self.__col_pressed > 1:
+            print('Timer was started')
             for search_comb in self.__search_combs:
-                # print('all pressed in search = %s (search = "%s", pressed = "%s")' % (
-                #     str(all(p in search_comb for p in self.__pressed)), search_comb, self.__pressed))
-                # print('all pressed in pressed = %s (search = "%s", pressed = "%s")' % (
-                #     str(all(s in self.__pressed for s in search_comb)),self.__pressed, search_comb))
                 if all(p in search_comb for p in self.__pressed) and all(s in self.__pressed for s in search_comb):
                     print('Combination %s was found' % search_comb)
                     self.__last_comb_found = search_comb.copy()

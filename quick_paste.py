@@ -1,5 +1,6 @@
-import sys
-import pyperclip
+# -*- coding: utf-8 -*-
+
+import os, sys
 from PySide2 import QtWidgets, QtCore, QtGui
 from ui_files.config_window import Ui_Form as ConfWindow
 from ui_files.edit_comb_window import Ui_Form as EditWindow
@@ -165,24 +166,37 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.main_window_action.triggered.connect(self.main_window_show)
         self.main_window_action.triggered.connect(self.main_window_show)
         self.exit_action.triggered.connect(QtCore.QCoreApplication.instance().quit)
-        # self.messageClicked.connect(self.message_clicked)
+        self.messageClicked.connect(lambda: self.message_clicked(0))
 
         self.base = BaseManager()
         self.keys = KeyMonitor()
         self.keys.comb_found.connect(self.select_template)
 
     def select_template(self, last_comb_found):
-        # self.showMessage('Тестовый заголовок', 'Тестовое сообщение', self.icon(), 5000)
         print('COMBINATION SLOT FUNC')
-        self.contextMenu().showFullScreen()
-        self.contextMenu().popup(QtGui.QCursor.pos())
+        self.showMessage('py_quick_paste', 'Тестовое сообщение', self.icon(), 2000)
 
-        # self.contextMenu().popup(QtGui.QCursor.pos())
+        # show_mess_script_text = 'display notification "test text" with title "py_quick_paste"'
+        # print("""osascript -e '%s'""" % show_mess_script_text)
+        # os.system("""osascript -e '%s'""" % show_mess_script_text)
 
+    def message_clicked(self, rule_id):
+        print('Message was clicked, rule_id = %s' % rule_id)
 
-    def message_clicked(self):
-        print('Message was clicked')
-        pass
+        # close_script_text = '\n' \
+        #                     'tell application "System Events"\n' \
+        #                     '   tell process "NotificationCenter"\n' \
+        #                     '       set windowCount to count windows\n' \
+        #                     '       repeat with i from windowCount to 1 by -1\n' \
+        #                     '           if description of image 2 of window i is "PYTHON" then\n' \
+        #                     '               click button "Close" of window i\n' \
+        #                     '           end if\n' \
+        #                     '       end repeat\n' \
+        #                     '   end tell\n' \
+        #                     'end tell'
+        # print()
+        # print("""osascript -e '%s'""" % close_script_text)
+        # os.system("""osascript -e '%s'""" % close_script_text)
 
     def main_window_show(self):
         if self.main_window_action.isChecked():

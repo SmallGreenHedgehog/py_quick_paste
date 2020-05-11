@@ -2,6 +2,7 @@
 
 import os, sys
 import pyperclip
+from time import sleep
 from PySide2 import QtWidgets, QtCore, QtGui
 from ui_files.config_window import Ui_Form as ConfWindow
 from ui_files.edit_comb_window import Ui_Form as EditWindow
@@ -205,7 +206,9 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         os.system("""osascript -e '%s'""" % close_script_text)
 
         pyperclip.copy('The text to be copied to the clipboard.')
-        pyperclip.paste()
+        self.keys.cmd_tab()
+        sleep(0.2)
+        self.keys.cmd_v()
 
     def main_window_show(self):
         if self.main_window_action.isChecked():

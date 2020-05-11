@@ -88,11 +88,19 @@ class KeyMonitor(QObject):
             search_comb = self.get_set_comb_from_str(rule[1])
             self.__search_combs.append(search_comb)
 
-    def ctrl_v(self):
+    def cmd_v(self):
         cont = keyboard.Controller()
         cont.press(keyboard.Key.cmd_l)
         cont.press('v')
         cont.release('v')
+        cont.release(keyboard.Key.cmd_l)
+        cont = ''
+
+    def cmd_tab(self):
+        cont = keyboard.Controller()
+        cont.press(keyboard.Key.cmd_l)
+        cont.press(keyboard.Key.tab)
+        cont.release(keyboard.Key.tab)
         cont.release(keyboard.Key.cmd_l)
         cont = ''
 

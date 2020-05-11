@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os, sys
+import pyperclip
 from PySide2 import QtWidgets, QtCore, QtGui
 from ui_files.config_window import Ui_Form as ConfWindow
 from ui_files.edit_comb_window import Ui_Form as EditWindow
@@ -156,7 +157,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         icon = QtGui.QIcon(r"ui_files/Icon.png")
         super(SystemTrayIcon, self).__init__(icon, parent)
 
-        self.menu = QtWidgets.QMenu(parent)
+        self.menu = QtWidgets.QMenu()
         self.main_window_action = self.menu.addAction('Главное меню')
         self.main_window_action.setCheckable(True)
         self.exit_action = self.menu.addAction("Выход")
@@ -176,9 +177,13 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         print('COMBINATION SLOT FUNC')
         self.showMessage('py_quick_paste', 'Тестовое сообщение', self.icon(), 2000)
 
-        # show_mess_script_text = 'display notification "test text" with title "py_quick_paste"'
-        # print("""osascript -e '%s'""" % show_mess_script_text)
-        # os.system("""osascript -e '%s'""" % show_mess_script_text)
+        # click_script_text = '' \
+        #                     'tell application "System Events\n' \
+        #                     '   tell process "Python"\n' \
+        #                     '       click menu bar item 1 of menu bar 2\n' \
+        #                     '   end tell\n' \
+        #                     'end tell\n' \
+        #                     ''
 
     def message_clicked(self, rule_id):
         # TODO реализовать функционал установки настроек универсального доступа и формата уведомлений для приложения
@@ -190,15 +195,17 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
                             '   tell process "NotificationCenter"\n' \
                             '       set windowCount to count windows\n' \
                             '       repeat with i from windowCount to 1 by -1\n' \
-                            '           if description of image 2 of window i is "PYTHON" then\n' \
+                            '           if value of static text 1 of window i is "py_quick_paste" then\n' \
                             '               click button "Закрыть" of window i\n' \
                             '           end if\n' \
                             '       end repeat\n' \
                             '   end tell\n' \
-                            'end tell'
-        print()
-        print("""osascript -e '%s'""" % close_script_text)
+                            'end tell\n' \
+                            ''
         os.system("""osascript -e '%s'""" % close_script_text)
+
+        pyperclip.copy('The text to be copied to the clipboard.')
+        pyperclip.paste()
 
     def main_window_show(self):
         if self.main_window_action.isChecked():

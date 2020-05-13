@@ -159,7 +159,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             max_x_pos = QtWidgets.QDesktopWidget().geometry().getCoords()[2]
             x_pos = max_x_pos + x_pos + 1
         self.__tray_icon_x_pos = x_pos + 15
-        print('self.__tray_icon_x_pos = %s' % self.__tray_icon_x_pos)
+        # print('self.__tray_icon_x_pos = %s' % self.__tray_icon_x_pos)
 
     def __init__(self, parent=None):
         icon = QtGui.QIcon(r"ui_files/Icon.png")
@@ -191,21 +191,15 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.setContextMenu(self.main_menu)
 
     def on_select_template(self):
-        # TODO реализовать функционал обработки клика по выбранному шаблону
         rule_id = self.sender().property('rule_id')
-        print('rule_id = %s' % str(rule_id))
-
+        rule_txt = self.base.get_rule_by_id(rule_id)[3]
+        pyperclip.copy(rule_txt)
+        self.keys.cmd_v()
 
         self.return_back_main_menu()
         self.keys.pos_mouse(self.__last_cursor_pos.x(), self.__last_cursor_pos.y())
 
-    def get_templates_dict_by_comb(self, found_comb):
-        print('found_comb = %s' % found_comb)
-        # TODO реализовать функционал получения наименований шаблонов из базы по комбинации
-        templates_dict = {5: 'temp_1', 8: 'temp_2'}
-        return templates_dict
-
-    def fill_templates_menu(self, templates_dict):
+    def fill_templates_menu(self, templates_list):
         self.templates_menu.clear()
 
         main_menu_action = self.templates_menu.addAction('Главное меню')
@@ -213,22 +207,32 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
         action_temp = []
         num_temp = 0
-        for temp_id in templates_dict:
-            temp_name = templates_dict.get(temp_id)
+        for temp in templates_list:
+            temp_id = temp[0]
+            temp_name = temp[1]
             action_temp.append(self.templates_menu.addAction(temp_name))
             action_temp[num_temp].setProperty('rule_id', temp_id)
             action_temp[num_temp].triggered.connect(self.on_select_template)
             num_temp += 1
 
     def select_template(self, last_comb_found):
-        # TODO реализовать функционал различных обработок комбинаций, в зависимости от количества привязанных шаблонов
-        print('COMBINATION SLOT FUNC')
-        templates_dict = self.get_templates_dict_by_comb(last_comb_found)
-        
-        self.fill_templates_menu(templates_dict)
-        self.setContextMenu(self.templates_menu)
-        self.__last_cursor_pos = QtGui.QCursor().pos()
-        self.keys.pos_mouse_on_tray_icon_menu(self.__tray_icon_x_pos)
+        # print('COMBINATION SLOT FUNC')
+        templates_list = self.base.get_list_rules_by_comb(last_comb_found)
+        if len(templates_list) == 1:
+            self.templates_menu.clear()
+            main_menu_action = self.templates_menu.addAction('Главное меню')
+            main_menu_action.triggered.connect(self.return_back_main_menu)
+
+            single_temp_act = self.templates_menu.addAction(templates_list[0][1])
+            single_temp_act.setProperty('rule_id', templates_list[0][0])
+            single_temp_act.triggered.connect(self.on_select_template)
+            self.setContextMenu(self.templates_menu)
+            single_temp_act.triggered.emit()
+        else:
+            self.fill_templates_menu(templates_list)
+            self.setContextMenu(self.templates_menu)
+            self.__last_cursor_pos = QtGui.QCursor().pos()
+            self.keys.pos_mouse_on_tray_icon_menu(self.__tray_icon_x_pos)
 
     def main_window_show(self):
         if self.main_window_action.isChecked():

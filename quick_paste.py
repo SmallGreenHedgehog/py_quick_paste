@@ -2,7 +2,6 @@
 
 import os, sys
 import pyperclip
-from time import sleep
 from PySide2 import QtWidgets, QtCore, QtGui
 from ui_files.config_window import Ui_Form as ConfWindow
 from ui_files.edit_comb_window import Ui_Form as EditWindow
@@ -154,6 +153,14 @@ class EditWindowForm(QtWidgets.QWidget):
 
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
+    def find_tray_icon_pos(self):
+        x_pos = self.geometry().x()
+        if x_pos < 0:
+            max_x_pos = QtWidgets.QDesktopWidget().geometry().getCoords()[2]
+            x_pos = max_x_pos + x_pos + 1
+        self.__tray_icon_x_pos = x_pos + 15
+        print('self.__tray_icon_x_pos = %s' % self.__tray_icon_x_pos)
+
     def __init__(self, parent=None):
         icon = QtGui.QIcon(r"ui_files/Icon.png")
         super(SystemTrayIcon, self).__init__(icon, parent)
@@ -165,64 +172,39 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.setContextMenu(self.menu)
 
         # Присоединяем слоты
-        self.main_window_action.triggered.connect(self.main_window_show)
+        self.activated.connect(self.find_tray_icon_pos)
         self.main_window_action.triggered.connect(self.main_window_show)
         self.exit_action.triggered.connect(QtCore.QCoreApplication.instance().quit)
-        self.messageClicked.connect(lambda: self.message_clicked(0))
+
 
         self.base = BaseManager()
         self.keys = KeyMonitor()
         self.keys.comb_found.connect(self.select_template)
 
+        self.find_timer = QtCore.QTimer()
+        self.find_timer.singleShot(500, self.find_tray_icon_pos)
+
     def select_template(self, last_comb_found):
         print('COMBINATION SLOT FUNC')
-        self.showMessage('py_quick_paste', 'Тестовое сообщение', self.icon(), 2000)
-
-        # click_script_text = '' \
-        #                     'tell application "System Events\n' \
-        #                     '   tell process "Python"\n' \
-        #                     '       click menu bar item 1 of menu bar 2\n' \
-        #                     '   end tell\n' \
-        #                     'end tell\n' \
-        #                     ''
-
-    def message_clicked(self, rule_id):
-        # TODO реализовать функционал установки настроек универсального доступа и формата уведомлений для приложения
-
-        print('Message was clicked, rule_id = %s' % rule_id)
-
-        close_script_text = '\n' \
-                            'tell application "System Events"\n' \
-                            '   tell process "NotificationCenter"\n' \
-                            '       set windowCount to count windows\n' \
-                            '       repeat with i from windowCount to 1 by -1\n' \
-                            '           if value of static text 1 of window i is "py_quick_paste" then\n' \
-                            '               click button "Закрыть" of window i\n' \
-                            '           end if\n' \
-                            '       end repeat\n' \
-                            '   end tell\n' \
-                            'end tell\n' \
-                            ''
-        os.system("""osascript -e '%s'""" % close_script_text)
-
-        pyperclip.copy('The text to be copied to the clipboard.')
-        self.keys.cmd_tab()
-        sleep(0.2)
-        self.keys.cmd_v()
+        self.keys.click_mouse_on_tray_icon(self.__tray_icon_x_pos)
 
     def main_window_show(self):
         if self.main_window_action.isChecked():
             conf_window.show()
+            getattr(conf_window, "raise")()
+            conf_window.activateWindow()
         else:
             conf_window.hide()
 
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
+    app.setApplicationName('py_quick_paste')
 
     tray_icon_window = SystemTrayIcon()
     conf_window = ConfigWindowForm()
     edit_window = EditWindowForm()
 
     tray_icon_window.show()
+
     sys.exit(app.exec_())

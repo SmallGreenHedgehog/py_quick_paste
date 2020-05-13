@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from threading import Timer
-from pynput import keyboard
+from pynput import keyboard, mouse
 from PySide2.QtCore import QObject, Signal
+from time import sleep
 
 
 class KeyMonitor(QObject):
@@ -102,6 +103,14 @@ class KeyMonitor(QObject):
         cont.press(keyboard.Key.tab)
         cont.release(keyboard.Key.tab)
         cont.release(keyboard.Key.cmd_l)
+        cont = ''
+
+    def click_mouse_on_tray_icon(self, tray_icon_x_pos):
+        cont = mouse.Controller()
+        current_pos = cont.position
+        cont.move(tray_icon_x_pos - current_pos[0], 0 - current_pos[1])
+        sleep(0.4)
+        cont.click(mouse.Button.left, 1)
         cont = ''
 
     def get_combination(self):

@@ -105,7 +105,7 @@ class KeyMonitor(QObject):
         cont.release(keyboard.Key.cmd_l)
         cont = ''
 
-    def click_mouse_on_tray_icon(self, tray_icon_x_pos):
+    def pos_mouse_on_tray_icon_menu(self, tray_icon_x_pos):
         cont = mouse.Controller()
         current_pos = cont.position
         cont.move(tray_icon_x_pos - current_pos[0], 0 - current_pos[1])

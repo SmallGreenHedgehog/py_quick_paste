@@ -183,6 +183,42 @@ class BaseManager():
         sqlite_base = ''
         return result
 
+    def get_list_rules_by_comb(self, comb):
+        sqlite_base = sqlite3.connect(self.__conf_file_name)
+        cursor = sqlite_base.cursor()
+
+        list_of_combs = []
+        cond_text = ''
+        for c in comb:
+            cond_text += ' and (instr(Combination, ?)>0)'
+            list_of_combs.append(c.replace('\'', '') if c.find('Key') < 0 else c)
+        cond_text = cond_text[5:]
+
+        req_text = 'SELECT Id, Name FROM RULES' + (' WHERE ' + cond_text if cond_text else '')
+
+        result = None
+
+        ok = False
+        attempts_q = 5
+        attempts_num = 0;
+
+        while (attempts_num < attempts_q) and (not ok):
+            attempts_num += 1
+            ok = True
+            try:
+                cursor.execute(req_text, list_of_combs)
+            except:
+                ok = False
+                print(traceback.print_exc())
+                sleep(1)
+        if ok:
+            result = cursor.fetchall()
+
+        cursor = ''
+        sqlite_base.close()
+        sqlite_base = ''
+        return result
+
     def remove_rule(self, rule_id):
         if rule_id != None:
             sqlite_base = sqlite3.connect(self.__conf_file_name)

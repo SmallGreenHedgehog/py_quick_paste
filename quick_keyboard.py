@@ -114,6 +114,12 @@ class KeyMonitor(QObject):
         cont.move(0, 35)
         cont = ''
 
+    def pos_mouse(self, x_pos, y_pos):
+        cont = mouse.Controller()
+        current_pos = cont.position
+        cont.move(x_pos - current_pos[0], y_pos - current_pos[1])
+        cont = ''
+
     def get_combination(self):
         self.start_get_comb()
         while self.__is_get_comb:

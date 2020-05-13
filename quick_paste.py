@@ -165,11 +165,11 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         icon = QtGui.QIcon(r"ui_files/Icon.png")
         super(SystemTrayIcon, self).__init__(icon, parent)
 
-        self.menu = QtWidgets.QMenu()
-        self.main_window_action = self.menu.addAction('Главное меню')
+        self.main_menu = QtWidgets.QMenu()
+        self.main_window_action = self.main_menu.addAction('Главное меню')
         self.main_window_action.setCheckable(True)
-        self.exit_action = self.menu.addAction("Выход")
-        self.setContextMenu(self.menu)
+        self.exit_action = self.main_menu.addAction("Выход")
+        self.setContextMenu(self.main_menu)
 
         self.templates_menu = QtWidgets.QMenu()
 
@@ -182,6 +182,8 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.keys = KeyMonitor()
         self.keys.comb_found.connect(self.select_template)
 
+        self.__last_cursor_pos = QtGui.QCursor().pos()
+
         self.find_timer = QtCore.QTimer()
         self.find_timer.singleShot(500, self.find_tray_icon_pos)
 
@@ -189,6 +191,8 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         # TODO реализовать функционал обработки клика по выбранному шаблону
         rule_id = self.sender().property('rule_id')
         print('rule_id = %s' % str(rule_id))
+        self.setContextMenu(self.main_menu)
+        self.keys.pos_mouse(self.__last_cursor_pos.x(), self.__last_cursor_pos.y())
 
     def get_templates_dict_by_comb(self, found_comb):
         print('found_comb = %s' % found_comb)
@@ -197,7 +201,6 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         return templates_dict
 
     def fill_templates_menu(self, templates_dict):
-        # TODO реализовать функционал заполнения меню шаблонов
         self.templates_menu.clear()
 
         action_temp = []
@@ -212,6 +215,9 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
     def select_template(self, last_comb_found):
         # TODO реализовать функционал различных обработок комбинаций, в зависимости от количества привязанных шаблонов
         print('COMBINATION SLOT FUNC')
+        self.__last_cursor_pos = QtGui.QCursor().pos()
+        print(self.__last_cursor_pos)
+
         templates_dict = self.get_templates_dict_by_comb(last_comb_found)
         self.fill_templates_menu(templates_dict)
         self.setContextMenu(self.templates_menu)

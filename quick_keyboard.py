@@ -3,6 +3,7 @@ from threading import Timer
 from pynput import keyboard, mouse
 from PySide2.QtCore import QObject, Signal
 from time import sleep
+import os
 
 
 class KeyMonitor(QObject):
@@ -89,7 +90,24 @@ class KeyMonitor(QObject):
             search_comb = self.get_set_comb_from_str(rule[1])
             self.__search_combs.append(search_comb)
 
+    def ctrl_space(self):
+        cont = keyboard.Controller()
+        cont.press(keyboard.Key.ctrl_l)
+        cont.press(keyboard.Key.space)
+        cont.release(keyboard.Key.space)
+        cont.release(keyboard.Key.ctrl_l)
+        cont = ''
+
     def cmd_v(self):
+        # TODO реализовать функционал переключения раскладки
+        layout = os.popen(
+            "defaults read ~/Library/Preferences/com.apple.HIToolbox.plist AppleSelectedInputSources | "
+            "egrep -w 'KeyboardLayout Name' | "
+            "sed -E 's/^.+ = \"?([^\"]+)\"?;$/\\1/'").read()[:3]
+        need_replace = (layout != 'ABC')
+
+        print('neneed_replace = %s' % str(need_replace))
+
         cont = keyboard.Controller()
         cont.press(keyboard.Key.cmd_l)
         cont.press('v')

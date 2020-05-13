@@ -166,7 +166,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         super(SystemTrayIcon, self).__init__(icon, parent)
 
         self.main_menu = QtWidgets.QMenu()
-        self.main_window_action = self.main_menu.addAction('Главное меню')
+        self.main_window_action = self.main_menu.addAction('Настройки')
         self.main_window_action.setCheckable(True)
         self.exit_action = self.main_menu.addAction("Выход")
         self.setContextMenu(self.main_menu)
@@ -187,11 +187,16 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.find_timer = QtCore.QTimer()
         self.find_timer.singleShot(500, self.find_tray_icon_pos)
 
+    def return_back_main_menu(self):
+        self.setContextMenu(self.main_menu)
+
     def on_select_template(self):
         # TODO реализовать функционал обработки клика по выбранному шаблону
         rule_id = self.sender().property('rule_id')
         print('rule_id = %s' % str(rule_id))
-        self.setContextMenu(self.main_menu)
+
+
+        self.return_back_main_menu()
         self.keys.pos_mouse(self.__last_cursor_pos.x(), self.__last_cursor_pos.y())
 
     def get_templates_dict_by_comb(self, found_comb):
@@ -202,6 +207,9 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
     def fill_templates_menu(self, templates_dict):
         self.templates_menu.clear()
+
+        main_menu_action = self.templates_menu.addAction('Главное меню')
+        main_menu_action.triggered.connect(self.return_back_main_menu)
 
         action_temp = []
         num_temp = 0
@@ -215,12 +223,11 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
     def select_template(self, last_comb_found):
         # TODO реализовать функционал различных обработок комбинаций, в зависимости от количества привязанных шаблонов
         print('COMBINATION SLOT FUNC')
-        self.__last_cursor_pos = QtGui.QCursor().pos()
-        print(self.__last_cursor_pos)
-
         templates_dict = self.get_templates_dict_by_comb(last_comb_found)
+        
         self.fill_templates_menu(templates_dict)
         self.setContextMenu(self.templates_menu)
+        self.__last_cursor_pos = QtGui.QCursor().pos()
         self.keys.pos_mouse_on_tray_icon_menu(self.__tray_icon_x_pos)
 
     def main_window_show(self):

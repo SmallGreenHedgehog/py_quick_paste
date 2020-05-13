@@ -111,7 +111,7 @@ class KeyMonitor(QObject):
         cont.move(tray_icon_x_pos - current_pos[0], 0 - current_pos[1])
         sleep(0.4)
         cont.click(mouse.Button.left, 1)
-        cont.move(0, 35)
+        cont.move(0, 55)
         cont = ''
 
     def pos_mouse(self, x_pos, y_pos):

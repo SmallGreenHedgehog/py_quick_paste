@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os, sys
+import sys
 import pyperclip
 from PySide2 import QtWidgets, QtCore, QtGui
 from ui_files.config_window import Ui_Form as ConfWindow
@@ -171,11 +171,12 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.exit_action = self.menu.addAction("Выход")
         self.setContextMenu(self.menu)
 
+        self.templates_menu = QtWidgets.QMenu()
+
         # Присоединяем слоты
         self.activated.connect(self.find_tray_icon_pos)
         self.main_window_action.triggered.connect(self.main_window_show)
         self.exit_action.triggered.connect(QtCore.QCoreApplication.instance().quit)
-
 
         self.base = BaseManager()
         self.keys = KeyMonitor()
@@ -184,9 +185,37 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.find_timer = QtCore.QTimer()
         self.find_timer.singleShot(500, self.find_tray_icon_pos)
 
+    def on_select_template(self):
+        # TODO реализовать функционал обработки клика по выбранному шаблону
+        rule_id = self.sender().property('rule_id')
+        print('rule_id = %s' % str(rule_id))
+
+    def get_templates_dict_by_comb(self, found_comb):
+        print('found_comb = %s' % found_comb)
+        # TODO реализовать функционал получения наименований шаблонов из базы по комбинации
+        templates_dict = {5: 'temp_1', 8: 'temp_2'}
+        return templates_dict
+
+    def fill_templates_menu(self, templates_dict):
+        # TODO реализовать функционал заполнения меню шаблонов
+        self.templates_menu.clear()
+
+        action_temp = []
+        num_temp = 0
+        for temp_id in templates_dict:
+            temp_name = templates_dict.get(temp_id)
+            action_temp.append(self.templates_menu.addAction(temp_name))
+            action_temp[num_temp].setProperty('rule_id', temp_id)
+            action_temp[num_temp].triggered.connect(self.on_select_template)
+            num_temp += 1
+
     def select_template(self, last_comb_found):
+        # TODO реализовать функционал различных обработок комбинаций, в зависимости от количества привязанных шаблонов
         print('COMBINATION SLOT FUNC')
-        self.keys.click_mouse_on_tray_icon(self.__tray_icon_x_pos)
+        templates_dict = self.get_templates_dict_by_comb(last_comb_found)
+        self.fill_templates_menu(templates_dict)
+        self.setContextMenu(self.templates_menu)
+        self.keys.pos_mouse_on_tray_icon_menu(self.__tray_icon_x_pos)
 
     def main_window_show(self):
         if self.main_window_action.isChecked():

@@ -11,7 +11,7 @@ class KeyMonitor(QObject):
     def __clear_released(self):
         self.__col_pressed = 0
         self.__pressed.clear()
-        print('released combs was cleared')
+        # print('released combs was cleared')
 
     def start_listen(self):
         self.__listener.start()
@@ -30,7 +30,7 @@ class KeyMonitor(QObject):
         self.__max_key_count_comb = 0
         self._max_combination = set()
         self.__last_comb_found = set()
-        self.__timer_clear_released = Timer(3, self.__clear_released)
+        self.__timer_clear_released = Timer(0.5, self.__clear_released)
         self.__listener = keyboard.Listener(
             on_press=self.__on_press,
             on_release=self.__on_release
@@ -48,17 +48,17 @@ class KeyMonitor(QObject):
     def __on_press(self, key):
         self.__col_pressed += 1
         self.__pressed.add(str(key))
-        print('pressed = %s' % self.__pressed)
-        print('col pressed = %s' % self.__col_pressed)
+        # print('pressed = %s' % self.__pressed)
+        # print('col pressed = %s' % self.__col_pressed)
 
         if not self.__timer_clear_released.is_alive():
-            self.__timer_clear_released = Timer(3, self.__clear_released)
+            self.__timer_clear_released = Timer(0.5, self.__clear_released)
             self.__timer_clear_released.start()
 
         if self.__col_pressed > 1:
             for search_comb in self.__search_combs:
                 if all(p in search_comb for p in self.__pressed) and all(s in self.__pressed for s in search_comb):
-                    print('Combination %s was found' % search_comb)
+                    # print('Combination %s was found' % search_comb)
                     self.__last_comb_found = search_comb.copy()
                     self.comb_found.emit(self.__last_comb_found)
 

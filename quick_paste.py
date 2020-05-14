@@ -199,7 +199,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         pyperclip.copy(rule_txt)
         pyperclip.paste()
         sleep(0.2)
-        self.keys.cmd_v()
+        self.keys.cmd_paste()
         self.return_back_main_menu()
         self.keys.pos_mouse(self.__last_cursor_pos.x(), self.__last_cursor_pos.y())
 

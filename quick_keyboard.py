@@ -106,7 +106,7 @@ class KeyMonitor(QObject):
         # print("""osascript -e '%s'""" % script_text)
         os.system("""osascript -e '%s'""" % script_text)
 
-    def cmd_v(self):
+    def cmd_paste(self):
         layout_name = self.get_keyboard_layout()
         need_replace = (layout_name != 'ABC')
         print('neneed_replace = %s' % str(need_replace))

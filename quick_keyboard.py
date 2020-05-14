@@ -56,17 +56,18 @@ class KeyMonitor(QObject):
             self.__timer_clear_released = Timer(0.5, self.__clear_released)
             self.__timer_clear_released.start()
 
-        if self.__col_pressed > 1:
-            for search_comb in self.__search_combs:
-                if all(p in search_comb for p in self.__pressed) and all(s in self.__pressed for s in search_comb):
-                    # print('Combination %s was found' % search_comb)
-                    self.__last_comb_found = search_comb.copy()
-                    self.comb_found.emit(self.__last_comb_found)
-
         if self.__is_get_comb:  # Начинаем получать комбинацию
             if self.__col_pressed > self.__max_key_count_comb:
                 self._max_combination = self.__pressed.copy()
                 self.__max_key_count_comb += 1
+        else:
+            if self.__col_pressed > 1:
+                for search_comb in self.__search_combs:
+                    if all(p in search_comb for p in self.__pressed) and all(s in self.__pressed for s in search_comb):
+                        print('Combination %s was found' % search_comb)
+                        self.__last_comb_found = search_comb.copy()
+                        self.comb_found.emit(self.__last_comb_found)
+                        break
 
     def __on_release(self, key):
         if self.__is_get_comb and self.__col_pressed > 1:  # Отпустили хоть одну клавишу и получение комбинации включено - вернем макс. комб. клавиш
@@ -127,7 +128,7 @@ class KeyMonitor(QObject):
         cont = mouse.Controller()
         current_pos = cont.position
         cont.move(tray_icon_x_pos - current_pos[0], 0 - current_pos[1])
-        sleep(0.4)
+        sleep(0.25)
         cont.click(mouse.Button.left, 1)
         cont.move(0, 55)
         cont = ''

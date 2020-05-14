@@ -7,6 +7,7 @@ from ui_files.config_window import Ui_Form as ConfWindow
 from ui_files.edit_comb_window import Ui_Form as EditWindow
 from quick_keyboard import KeyMonitor
 from quick_base import BaseManager
+from time import sleep
 
 
 class ConfigWindowForm(QtWidgets.QWidget):
@@ -196,6 +197,8 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         rule_id = self.sender().property('rule_id')
         rule_txt = self.base.get_rule_by_id(rule_id)[3]
         pyperclip.copy(rule_txt)
+        pyperclip.paste()
+        sleep(0.2)
         self.keys.cmd_v()
         self.return_back_main_menu()
         self.keys.pos_mouse(self.__last_cursor_pos.x(), self.__last_cursor_pos.y())

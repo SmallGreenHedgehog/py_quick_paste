@@ -3,6 +3,7 @@ from threading import Timer
 from pynput import keyboard, mouse
 from PySide2.QtCore import QObject, Signal
 from time import sleep
+import os
 
 
 class KeyMonitor(QObject):
@@ -90,20 +91,37 @@ class KeyMonitor(QObject):
             search_comb = self.get_set_comb_from_str(rule[1])
             self.__search_combs.append(search_comb)
 
+    def get_keyboard_layout(self):
+        return os.popen(
+            "defaults read ~/Library/Preferences/com.apple.HIToolbox.plist AppleSelectedInputSources | "
+            "egrep -w 'KeyboardLayout Name' | "
+            "sed -E 's/^.+ = \"?([^\"]+)\"?;$/\\1/'").read()[:-1]
+
+    def change_keyboard_layout(self, layout_name='ABC', layout_num=-1):
+        script_text = '\n' \
+                      'tell application "System Events" to tell process "SystemUIServer"\n' \
+                      ' tell (1st menu bar item of menu bar 1 whose description is "text input") to {click, click (menu item %s of menu 1)}\n' \
+                      'end tell\n' \
+                      'delay 0.25\n' % (layout_name if layout_num < 0 else f'"{layout_name}"')
+        # print("""osascript -e '%s'""" % script_text)
+        os.system("""osascript -e '%s'""" % script_text)
+
     def cmd_v(self):
-        cont = keyboard.Controller()
-        cont.press(keyboard.Key.cmd_l)
-        cont.press('v')
-        cont.release('v')
-        cont.release(keyboard.Key.cmd_l)
-        cont = ''
+        layout_name = self.get_keyboard_layout()
+        need_replace = (layout_name != 'ABC')
+        print('neneed_replace = %s' % str(need_replace))
+        if need_replace:
+            self.change_keyboard_layout(1)
+        os.system("""osascript -e 'tell application "System Events" to keystroke "v" using command down'""")
+        if need_replace:
+            self.change_keyboard_layout(2)
 
     def cmd_tab(self):
         cont = keyboard.Controller()
-        cont.press(keyboard.Key.cmd_l)
+        cont.press(keyboard.Key.cmd)
         cont.press(keyboard.Key.tab)
         cont.release(keyboard.Key.tab)
-        cont.release(keyboard.Key.cmd_l)
+        cont.release(keyboard.Key.cmd)
         cont = ''
 
     def pos_mouse_on_tray_icon_menu(self, tray_icon_x_pos):

@@ -166,6 +166,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         icon = QtGui.QIcon(r"ui_files/Icon.png")
         super(SystemTrayIcon, self).__init__(icon, parent)
 
+        # TODO добавить дополнительные функциональные настройки в меню
         self.main_menu = QtWidgets.QMenu()
         self.main_window_action = self.main_menu.addAction('Настройки')
         self.main_window_action.setCheckable(True)
@@ -192,13 +193,13 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.setContextMenu(self.main_menu)
 
     def on_select_template(self):
+        # TODO реализовать восстановление буфера обмена
         rule_id = self.sender().property('rule_id')
         rule_txt = self.base.get_rule_by_id(rule_id)[3]
         pyperclip.copy(rule_txt)
         pyperclip.paste()
         sleep(0.2)
         self.keys.cmd_v()
-
         self.return_back_main_menu()
         self.keys.pos_mouse(self.__last_cursor_pos.x(), self.__last_cursor_pos.y())
 
@@ -220,6 +221,9 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
     def select_template(self, last_comb_found):
         # print('COMBINATION SLOT FUNC')
+        # TODO реализовать функционал вывода набора шаблонов всплывающими сообщениями
+        # TODO реализовать функционал вывода уведомления при вставке шаблона
+
         templates_list = self.base.get_list_rules_by_comb(last_comb_found)
         if len(templates_list) == 1:
             self.templates_menu.clear()

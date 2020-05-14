@@ -109,7 +109,7 @@ class KeyMonitor(QObject):
     def cmd_paste(self):
         layout_name = self.get_keyboard_layout()
         need_replace = (layout_name != 'ABC')
-        print('neneed_replace = %s' % str(need_replace))
+        # print('need_replace = %s' % str(need_replace))
         if need_replace:
             self.change_keyboard_layout(1)
         os.system("""osascript -e 'tell application "System Events" to keystroke "v" using command down'""")

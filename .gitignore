@@ -8,3 +8,5 @@ __pycache__/
 config.db
 testdababase.db
 venv
+/build
+/dist

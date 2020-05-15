@@ -3,10 +3,10 @@
 import sys
 import pyperclip
 from PySide2 import QtWidgets, QtCore, QtGui
-from ui_files.config_window import Ui_Form as ConfWindow
-from ui_files.edit_comb_window import Ui_Form as EditWindow
-from quick_keyboard import KeyMonitor
-from quick_base import BaseManager
+from src.ui_files.config_window import Ui_Form as ConfWindow
+from src.ui_files.edit_comb_window import Ui_Form as EditWindow
+from src.quick_keyboard import KeyMonitor
+from src.quick_base import BaseManager
 from time import sleep
 
 
@@ -163,7 +163,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         # print('self.__tray_icon_x_pos = %s' % self.__tray_icon_x_pos)
 
     def __init__(self, parent=None):
-        icon = QtGui.QIcon(r"ui_files/Icon.png")
+        icon = QtGui.QIcon(r"src/ui_files/icon.png")
         super(SystemTrayIcon, self).__init__(icon, parent)
 
         # TODO добавить дополнительные функциональные настройки в меню

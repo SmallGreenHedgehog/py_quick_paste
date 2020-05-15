@@ -239,7 +239,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             self.fill_templates_menu(templates_list)
             self.setContextMenu(self.templates_menu)
             self.__last_cursor_pos = QtGui.QCursor().pos()
-            self.keys.pos_mouse_on_tray_icon_menu(self.__tray_icon_x_pos)
+            self.keys.click_mouse_on_tray_icon_menu(self.__tray_icon_x_pos)
 
     def main_window_show(self):
         if self.main_window_action.isChecked():

@@ -8,3 +8,6 @@ __pycache__/
 config.db
 testdababase.db
 venv
+/build
+/dist
+py_quick_paste.dmg

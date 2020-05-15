@@ -14,6 +14,10 @@ class KeyMonitor(QObject):
         self.__pressed.clear()
         # print('released combs was cleared')
 
+    def __sticky_keys_check_stick(self):
+        if not self.__all_keys_was_released_in_interval:
+            self.__clear_released()
+
     def start_listen(self):
         self.__listener.start()
 
@@ -31,7 +35,8 @@ class KeyMonitor(QObject):
         self.__max_key_count_comb = 0
         self._max_combination = set()
         self.__last_comb_found = set()
-        self.__timer_clear_released = Timer(0.5, self.__clear_released)
+        self.__all_keys_was_released_in_interval = False
+        self.__timer_clear_released = Timer(3, self.__sticky_keys_check_stick)
         self.__listener = keyboard.Listener(
             on_press=self.__on_press,
             on_release=self.__on_release
@@ -49,11 +54,16 @@ class KeyMonitor(QObject):
     def __on_press(self, key):
         self.__col_pressed += 1
         self.__pressed.add(str(key))
+
+        # print()
+        # print('press key = %s' % str(key))
         # print('pressed = %s' % self.__pressed)
         # print('col pressed = %s' % self.__col_pressed)
+        # print()
 
         if not self.__timer_clear_released.is_alive():
-            self.__timer_clear_released = Timer(0.5, self.__clear_released)
+            self.__all_keys_was_released_in_interval = False
+            self.__timer_clear_released = Timer(3, self.__sticky_keys_check_stick)
             self.__timer_clear_released.start()
 
         if self.__is_get_comb:  # Начинаем получать комбинацию
@@ -73,12 +83,21 @@ class KeyMonitor(QObject):
         if self.__is_get_comb and self.__col_pressed > 1:  # Отпустили хоть одну клавишу и получение комбинации включено - вернем макс. комб. клавиш
             self.stop_get_comb()
 
-        self.__col_pressed -= 1
-        if key in self.__pressed:
-            self.__pressed.remove(key)
+        if str(key) in self.__pressed:
+            self.__col_pressed -= 1
+            self.__pressed.remove(str(key))
 
-        if self.__col_pressed == 0:
+        # print()
+        # print('release key = %s' % str(key))
+        # print('pressed = %s' % self.__pressed)
+        # print('col pressed = %s' % self.__col_pressed)
+        # print()
+
+        if self.__col_pressed < 1:
+            self.__all_keys_was_released_in_interval = True
+            self.__col_pressed = 0
             self.__pressed.clear()
+            print('clear all keys')
 
     def get_set_comb_from_str(self, src_str=''):
         result = set()
@@ -106,10 +125,10 @@ class KeyMonitor(QObject):
         # print("""osascript -e '%s'""" % script_text)
         os.system("""osascript -e '%s'""" % script_text)
 
-    def cmd_v(self):
+    def cmd_paste(self):
         layout_name = self.get_keyboard_layout()
         need_replace = (layout_name != 'ABC')
-        print('neneed_replace = %s' % str(need_replace))
+        # print('need_replace = %s' % str(need_replace))
         if need_replace:
             self.change_keyboard_layout(1)
         os.system("""osascript -e 'tell application "System Events" to keystroke "v" using command down'""")
@@ -124,7 +143,7 @@ class KeyMonitor(QObject):
         cont.release(keyboard.Key.cmd)
         cont = ''
 
-    def pos_mouse_on_tray_icon_menu(self, tray_icon_x_pos):
+    def click_mouse_on_tray_icon_menu(self, tray_icon_x_pos):
         cont = mouse.Controller()
         current_pos = cont.position
         cont.move(tray_icon_x_pos - current_pos[0], 0 - current_pos[1])

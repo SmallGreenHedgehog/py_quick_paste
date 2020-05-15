@@ -189,6 +189,15 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.find_timer = QtCore.QTimer()
         self.find_timer.singleShot(500, self.find_tray_icon_pos)
 
+        # TODO реализовать функционал проверки включенного универсального доступа и вывода запроса
+        test_text_script = '\n' \
+                           'tell application "System Preferences"\n' \
+                           '    set securityPane to pane id "com.apple.preference.security"\n' \
+                           '    tell securityPane to reveal anchor "Privacy_Accessibility"\n' \
+                           '    activate\n' \
+                           'end tell\n' \
+                           ''
+
     def return_back_main_menu(self):
         self.setContextMenu(self.main_menu)
 

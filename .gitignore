@@ -11,3 +11,4 @@ venv
 /build
 /dist
 py_quick_paste*.dmg
+py_quick_paste.spec

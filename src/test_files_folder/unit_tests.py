@@ -1,5 +1,5 @@
 import unittest
-from quick_keyboard import KeyMonitor
+from src.quick_keyboard import KeyMonitor
 from pynput import keyboard
 
 

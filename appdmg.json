@@ -1,6 +1,6 @@
 {
   "title": "py_quick_paste",
-  "background": "./ui_files/background.png",
+  "background": "./src/ui_files/background.png",
   "icon-size": 80,
   "contents": [
     { "x": 100, "y": 190, "type": "file", "path": "./dist/py_quick_paste.app" },

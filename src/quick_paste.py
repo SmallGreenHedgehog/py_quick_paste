@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import sys
+import os,sys
 import pyperclip
 from PySide2 import QtWidgets, QtCore, QtGui
 from ui_files.config_window import Ui_Form as ConfWindow
@@ -163,7 +163,9 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         # print('self.__tray_icon_x_pos = %s' % self.__tray_icon_x_pos)
 
     def __init__(self, parent=None):
-        icon = QtGui.QIcon(r"ui_files/Icon.png")
+        icon_path = os.path.join(os.path.dirname(sys.argv[0]), 'ui_files/icon.png')
+        print('icon_path = %s' % icon_path)
+        icon = QtGui.QIcon(icon_path)
         super(SystemTrayIcon, self).__init__(icon, parent)
 
         # TODO добавить дополнительные функциональные настройки в меню
@@ -188,6 +190,15 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
         self.find_timer = QtCore.QTimer()
         self.find_timer.singleShot(500, self.find_tray_icon_pos)
+
+        # TODO реализовать функционал проверки включенного универсального доступа и вывода запроса
+        test_text_script = '\n' \
+                           'tell application "System Preferences"\n' \
+                           '    set securityPane to pane id "com.apple.preference.security"\n' \
+                           '    tell securityPane to reveal anchor "Privacy_Accessibility"\n' \
+                           '    activate\n' \
+                           'end tell\n' \
+                           ''
 
     def return_back_main_menu(self):
         self.setContextMenu(self.main_menu)

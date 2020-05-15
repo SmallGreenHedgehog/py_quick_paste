@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-
+import os, sys
 import sqlite3
 import traceback
 from time import sleep
-from pynput import keyboard
 
 
 class BaseManager():
@@ -15,7 +14,8 @@ class BaseManager():
 
     def __init__(self):
         if not self.__initialized:
-            self.__conf_file_name = 'config.db'
+            self.__conf_file_name = os.path.join(os.path.dirname(sys.argv[0]), 'config.db')
+            # self.__conf_file_name = 'config.db'
             self.__init_base()
             self.__first_start = False
             self.__initialized = True

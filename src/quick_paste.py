@@ -3,10 +3,10 @@
 import sys
 import pyperclip
 from PySide2 import QtWidgets, QtCore, QtGui
-from src.ui_files.config_window import Ui_Form as ConfWindow
-from src.ui_files.edit_comb_window import Ui_Form as EditWindow
-from src.quick_keyboard import KeyMonitor
-from src.quick_base import BaseManager
+from ui_files.config_window import Ui_Form as ConfWindow
+from ui_files.edit_comb_window import Ui_Form as EditWindow
+from quick_keyboard import KeyMonitor
+from quick_base import BaseManager
 from time import sleep
 
 

@@ -3,7 +3,6 @@
 import sqlite3
 import traceback
 from time import sleep
-from pynput import keyboard
 
 
 class BaseManager():

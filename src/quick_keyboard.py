@@ -51,12 +51,19 @@ class KeyMonitor(QObject):
     def stop_get_comb(self):
         self.__is_get_comb = False
 
+    def __get_key_code(self, key):
+        str_key = str(key)
+        key_str_val = str(key.vk) if str_key.find('Key') < 0 else str_key
+        return key_str_val
+
     def __on_press(self, key):
+        key_code =self.__get_key_code(key)
+
         self.__col_pressed += 1
-        self.__pressed.add(str(key))
+        self.__pressed.add(key_code)
 
         # print()
-        # print('press key = %s' % str(key))
+        # print('press key = %s' % key_code)
         # print('pressed = %s' % self.__pressed)
         # print('col pressed = %s' % self.__col_pressed)
         # print()
@@ -74,21 +81,23 @@ class KeyMonitor(QObject):
             if self.__col_pressed > 1:
                 for search_comb in self.__search_combs:
                     if all(p in search_comb for p in self.__pressed) and all(s in self.__pressed for s in search_comb):
-                        print('Combination %s was found' % search_comb)
+                        # print('Combination %s was found' % search_comb)
                         self.__last_comb_found = search_comb.copy()
                         self.comb_found.emit(self.__last_comb_found)
                         break
 
     def __on_release(self, key):
+        key_code = self.__get_key_code(key)
+
         if self.__is_get_comb and self.__col_pressed > 1:  # Отпустили хоть одну клавишу и получение комбинации включено - вернем макс. комб. клавиш
             self.stop_get_comb()
 
-        if str(key) in self.__pressed:
+        if key_code in self.__pressed:
             self.__col_pressed -= 1
-            self.__pressed.remove(str(key))
+            self.__pressed.remove(key_code)
 
         # print()
-        # print('release key = %s' % str(key))
+        # print('release key = %s' % key_code)
         # print('pressed = %s' % self.__pressed)
         # print('col pressed = %s' % self.__col_pressed)
         # print()
@@ -97,7 +106,7 @@ class KeyMonitor(QObject):
             self.__all_keys_was_released_in_interval = True
             self.__col_pressed = 0
             self.__pressed.clear()
-            print('clear all keys')
+            # print('clear all keys')
 
     def get_set_comb_from_str(self, src_str=''):
         result = set()

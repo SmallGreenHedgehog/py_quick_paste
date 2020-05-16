@@ -111,7 +111,7 @@ class EditWindowForm(QtWidgets.QWidget):
         # TODO добавить поддержку Catalina (не работает обновление надписи)
         self.__act_comb = tray_icon_window.keys.get_combination()
         self.ui.label_comb.setText(str(self.__act_comb))
-        self.ui.label_comb.update()
+        self.ui.label_comb.repaint()
 
     def save_rule(self):
         if self.__rule_is_correct():

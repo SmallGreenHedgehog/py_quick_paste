@@ -14,8 +14,11 @@ class BaseManager():
 
     def __init__(self):
         if not self.__initialized:
-            self.__conf_file_name = os.path.join(os.path.dirname(sys.argv[0]), 'config.db')
-            # self.__conf_file_name = 'config.db'
+            # self.__conf_file_name = os.path.join(os.path.dirname(sys.argv[0]), 'config.db')
+            self.__conf_base_path = os.path.expanduser('~/.com.company.py_quick_paste/data/Documents')
+            os.system('mkdir -p %s' % self.__conf_base_path)
+            self.__conf_file_name = self.__conf_base_path + '/config.db'
+
             self.__init_base()
             self.__first_start = False
             self.__initialized = True

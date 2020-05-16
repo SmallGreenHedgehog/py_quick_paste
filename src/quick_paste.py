@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os,sys
+import os, sys
 import pyperclip
 from PySide2 import QtWidgets, QtCore, QtGui
 from ui_files.config_window import Ui_Form as ConfWindow
@@ -108,8 +108,10 @@ class EditWindowForm(QtWidgets.QWidget):
         return result
 
     def set_comb(self):
+        # TODO добавить поддержку Catalina (не работает обновление надписи)
         self.__act_comb = tray_icon_window.keys.get_combination()
         self.ui.label_comb.setText(str(self.__act_comb))
+        self.ui.label_comb.update()
 
     def save_rule(self):
         if self.__rule_is_correct():

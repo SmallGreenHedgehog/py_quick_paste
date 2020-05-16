@@ -126,7 +126,6 @@ class KeyMonitor(QObject):
             "sed -E 's/^.+ = \"?([^\"]+)\"?;$/\\1/'").read()[:-1]
 
     def change_keyboard_layout(self, layout_name='ABC', layout_num=-1):
-        # TODO добавить поддержку Catalina (не работает переключение раскладки)
         # script_text = '\n' \
         #               'tell application "System Events" to tell process "SystemUIServer"\n' \
         #               ' tell (1st menu bar item of menu bar 1 whose description is "text input") to {click, click (menu item %s of menu 1)}\n' \

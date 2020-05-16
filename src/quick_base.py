@@ -302,6 +302,8 @@ class BaseManager():
         return ok
 
     def __init_base(self):
+        # TODO реализовать функционал хранения более удобного для отображения пользователю представления комбинаций
+
         sqlite_base = sqlite3.connect(self.__conf_file_name)
         cursor = sqlite_base.cursor()
 

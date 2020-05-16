@@ -57,7 +57,7 @@ class KeyMonitor(QObject):
         return key_str_val
 
     def __on_press(self, key):
-        key_code =self.__get_key_code(key)
+        key_code = self.__get_key_code(key)
 
         self.__col_pressed += 1
         self.__pressed.add(key_code)
@@ -126,11 +126,16 @@ class KeyMonitor(QObject):
             "sed -E 's/^.+ = \"?([^\"]+)\"?;$/\\1/'").read()[:-1]
 
     def change_keyboard_layout(self, layout_name='ABC', layout_num=-1):
+        # TODO добавить поддержку Catalina (не работает переключение раскладки)
+        # script_text = '\n' \
+        #               'tell application "System Events" to tell process "SystemUIServer"\n' \
+        #               ' tell (1st menu bar item of menu bar 1 whose description is "text input") to {click, click (menu item %s of menu 1)}\n' \
+        #               'end tell\n' \
+        #               'delay 0.25\n' % (layout_name if layout_num < 0 else f'"{layout_name}"')
         script_text = '\n' \
-                      'tell application "System Events" to tell process "SystemUIServer"\n' \
-                      ' tell (1st menu bar item of menu bar 1 whose description is "text input") to {click, click (menu item %s of menu 1)}\n' \
-                      'end tell\n' \
-                      'delay 0.25\n' % (layout_name if layout_num < 0 else f'"{layout_name}"')
+                      'tell application "System Events" to keystroke space using {control down}\n' \
+                      'delay 0.25\n' \
+                      ''
         # print("""osascript -e '%s'""" % script_text)
         os.system("""osascript -e '%s'""" % script_text)
 

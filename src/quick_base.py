@@ -347,7 +347,7 @@ class BaseManager():
             if self.__first_start:  # Это первый запуск программы, заполним дефолтными значениями
                 def_comb = set()
                 def_comb.add('Key.ctrl')
-                def_comb.add("'\\x14'")
+                def_comb.add('17')
                 if self.set_rule(str(def_comb), 'Тестовая комбинация', 'Текст тестовой комбинации'):
                     self.set_parameter('not_firts_start', 'True')
 

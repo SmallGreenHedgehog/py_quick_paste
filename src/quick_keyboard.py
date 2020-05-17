@@ -6,6 +6,14 @@ from time import sleep
 import os
 
 
+def replace_dict_key_values(src_dict):
+    result = {}
+    for key in src_dict:
+        val = src_dict[key]
+        result[val] = key
+    return result
+
+
 class KeyMonitor(QObject):
     comb_found = Signal(enumerate)
 
@@ -24,6 +32,8 @@ class KeyMonitor(QObject):
     def stop_listen(self):
         self.__listener.stop()
 
+
+
     def __init__(self, parent=None):
         super(KeyMonitor, self).__init__()
 
@@ -32,11 +42,16 @@ class KeyMonitor(QObject):
         self.__pressed = set()
         self.__col_pressed = 0
         self.__is_get_comb = False
-        self.__max_key_count_comb = 0
+        self.__max_key_count_comb = 1
         self._max_combination = set()
         self.__last_comb_found = set()
         self.__all_keys_was_released_in_interval = False
         self.__timer_clear_released = Timer(3, self.__sticky_keys_check_stick)
+
+        # TODO исправить баг заполнения кодов "не в той раскладке"
+        # Заполняем список кодов
+        self.__keys_map = replace_dict_key_values(keyboard._darwin.get_unicode_to_keycode_map().copy())
+
         self.__listener = keyboard.Listener(
             on_press=self.__on_press,
             on_release=self.__on_release
@@ -45,7 +60,7 @@ class KeyMonitor(QObject):
 
     def start_get_comb(self):
         self._max_combination = set()
-        self.__max_key_count_comb = 0
+        self.__max_key_count_comb = 1
         self.__is_get_comb = True
 
     def stop_get_comb(self):
@@ -53,7 +68,15 @@ class KeyMonitor(QObject):
 
     def __get_key_code(self, key):
         str_key = str(key)
-        key_str_val = str(key.vk) if str_key.find('Key') < 0 else str_key
+        # print('str_key = %s' % str_key)
+        str_by_vk_key = str_key
+        try:
+            str_by_vk_key = self.__keys_map[key.vk]
+        except:
+            pass
+        # print('__keys_map[key.vk] = %s' % str_by_vk_key)
+        key_str_val = str_by_vk_key if str_key.find('Key') < 0 else str_key
+        # print('key_str_val = %s' % key_str_val)
         return key_str_val
 
     def __on_press(self, key):
@@ -77,6 +100,10 @@ class KeyMonitor(QObject):
             if self.__col_pressed > self.__max_key_count_comb:
                 self._max_combination = self.__pressed.copy()
                 self.__max_key_count_comb += 1
+            else:
+                if key == keyboard.Key.esc:
+                    self._max_combination = None
+                    self.stop_get_comb()
         else:
             if self.__col_pressed > 1:
                 for search_comb in self.__search_combs:
@@ -125,7 +152,7 @@ class KeyMonitor(QObject):
             "egrep -w 'KeyboardLayout Name' | "
             "sed -E 's/^.+ = \"?([^\"]+)\"?;$/\\1/'").read()[:-1]
 
-    def change_keyboard_layout(self, layout_name='ABC', layout_num=-1):
+    def change_keyboard_layout(self):
         # script_text = '\n' \
         #               'tell application "System Events" to tell process "SystemUIServer"\n' \
         #               ' tell (1st menu bar item of menu bar 1 whose description is "text input") to {click, click (menu item %s of menu 1)}\n' \
@@ -143,10 +170,10 @@ class KeyMonitor(QObject):
         need_replace = (layout_name != 'ABC')
         # print('need_replace = %s' % str(need_replace))
         if need_replace:
-            self.change_keyboard_layout(1)
+            self.change_keyboard_layout()
         os.system("""osascript -e 'tell application "System Events" to keystroke "v" using command down'""")
         if need_replace:
-            self.change_keyboard_layout(2)
+            self.change_keyboard_layout()
 
     def cmd_tab(self):
         cont = keyboard.Controller()

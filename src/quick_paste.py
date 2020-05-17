@@ -109,8 +109,9 @@ class EditWindowForm(QtWidgets.QWidget):
 
     def set_comb(self):
         self.__act_comb = tray_icon_window.keys.get_combination()
-        self.ui.label_comb.setText(str(self.__act_comb))
-        self.ui.label_comb.repaint()
+        if self.__act_comb is not None:
+            self.ui.label_comb.setText(str(self.__act_comb))
+            self.ui.label_comb.repaint()
 
     def save_rule(self):
         if self.__rule_is_correct():
@@ -165,7 +166,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
     def __init__(self, parent=None):
         icon_path = os.path.join(os.path.dirname(sys.argv[0]), 'ui_files/icon.png')
-        print('icon_path = %s' % icon_path)
+        # print('icon_path = %s' % icon_path)
         icon = QtGui.QIcon(icon_path)
         super(SystemTrayIcon, self).__init__(icon, parent)
 

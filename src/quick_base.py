@@ -194,7 +194,8 @@ class BaseManager():
         cond_text = ''
         for c in comb:
             cond_text += ' and (instr(Combination, ?)>0)'
-            list_of_combs.append(c.replace('\'', '') if c.find('Key') < 0 else c)
+            # list_of_combs.append(c.replace('\'', '') if c.find('Key') < 0 else c)
+            list_of_combs.append('\'%s\'' % c)
         cond_text = cond_text[5:]
 
         req_text = 'SELECT Id, Name FROM RULES' + (' WHERE ' + cond_text if cond_text else '')

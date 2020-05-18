@@ -37,6 +37,7 @@ class ConfigWindowForm(QtWidgets.QWidget):
         rules_list = tray_icon_window.base.get_all_rules()
 
         # Обновим так же список искомых комбинаций, чтобы не дергать лишний раз базу
+        # print('rules_list = %s' % rules_list)
         tray_icon_window.keys.update_search_combs(rules_list)
 
         row_pos = 0

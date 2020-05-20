@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>653</width>
-    <height>510</height>
+    <width>905</width>
+    <height>571</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -41,6 +41,11 @@
            </column>
            <column>
             <property name="text">
+             <string>Pos</string>
+            </property>
+           </column>
+           <column>
+            <property name="text">
              <string>Комбинация</string>
             </property>
            </column>
@@ -59,7 +64,7 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QPushButton" name="pushButton_2">
+            <widget class="QPushButton" name="pushButton_move_top">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -91,14 +96,14 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_4">
+            <widget class="QPushButton" name="pushButton_move_higer">
              <property name="text">
               <string>Выше</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton_3">
+            <widget class="QPushButton" name="pushButton_move_lower">
              <property name="text">
               <string>Ниже</string>
              </property>
@@ -118,7 +123,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton">
+            <widget class="QPushButton" name="pushButton_move_bottom">
              <property name="text">
               <string>Вниз</string>
              </property>
@@ -164,6 +169,13 @@
         <widget class="QCheckBox" name="checkBox_pos_on_first_comb">
          <property name="text">
           <string>При обнаружении комбинации переходить на первую в списке</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkBox_restore_clipboard">
+         <property name="text">
+          <string>Восстанавливать буфер обмена после вставки комбинации</string>
          </property>
         </widget>
        </item>

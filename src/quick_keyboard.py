@@ -65,7 +65,6 @@ class KeyMonitor(QObject):
         self.__all_keys_was_released_in_interval = False
         self.__timer_clear_released = Timer(3, self.__sticky_keys_check_stick)
 
-        # TODO исправить баг заполнения кодов "не в той раскладке"
         # Заполняем список кодов
         self.__keys_map = get_us_unicode_to_keycode_map().copy()
 

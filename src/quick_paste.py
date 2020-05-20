@@ -27,10 +27,32 @@ class ConfigWindowForm(QtWidgets.QWidget):
         self.ui.pushButton_append.clicked.connect(self.append_rule)
         self.ui.pushButton_remove.clicked.connect(self.remove_rule)
         self.ui.pushButton_clear.clicked.connect(self.clear_rule)
+
+        self.ui.pushButton_move_top.clicked(self.move_top)
+        self.ui.pushButton_move_higer.clicked.connect(self.move_higer)
+        self.ui.pushButton_move_lower.clicked.connect(self.move_lower)
+        self.ui.pushButton_move_lower.clicked.connect(self.move_bottom)
+
         self.ui.pushButton_hide.clicked.connect(self.hide_window)
         self.ui.tableWidget.cellDoubleClicked.connect(self.edit_rule)
 
+        self.ui.checkBox_w_hidden_win_start.stateChanged.connect(self.set_w_hidden_win_start)
+        self.ui.checkBox_pos_on_first_comb.stateChanged.connect(self.set_pos_on_first_comb)
+        self.ui.checkBox_restore_clipboard.stateChanged.connect()
+
         self.update_table()
+
+    def set_w_hidden_win_start(self):
+        # TODO реализовать функционал переключения запуска в свернутом виде
+        print('Смотри TODO')
+
+    def set_pos_on_first_comb(self):
+        # TODO реализовать функционал переключения позиционирования на первом шаблоне списка
+        print('Смотри TODO')
+
+    def set_restore_clipboard(self):
+        # TODO реализовать функционал переключения восстановления буфера обмена после вставки шаблона
+        print('Смотри TODO')
 
     def update_table(self):
         self.ui.tableWidget.setRowCount(0)
@@ -73,6 +95,22 @@ class ConfigWindowForm(QtWidgets.QWidget):
     def clear_rule(self):
         if tray_icon_window.base.remove_all_rules():
             self.update_table()
+
+    def move_top(self):
+        # TODO реализовать функционал перемещения комбинации в начало списка
+        print('Смотри TODO')
+
+    def move_bottom(self):
+        # TODO реализовать функционал перемещения комбинации в конец списка
+        print('Смотри TODO')
+
+    def move_higer(self):
+        # TODO реализовать функционал перемещения комбинации в списке на позицию выше
+        print('Смотри TODO')
+
+    def move_lower(self):
+        # TODO реализовать функционал перемещения комбинации в списке на позицию ниже
+        print('Смотри TODO')
 
     def hide_window(self):
         self.hide()
@@ -171,7 +209,6 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         icon = QtGui.QIcon(icon_path)
         super(SystemTrayIcon, self).__init__(icon, parent)
 
-        # TODO добавить дополнительные функциональные настройки в меню
         self.main_menu = QtWidgets.QMenu()
         self.main_window_action = self.main_menu.addAction('Настройки')
         self.main_window_action.setCheckable(True)
@@ -207,7 +244,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.setContextMenu(self.main_menu)
 
     def on_select_template(self):
-        # TODO реализовать восстановление буфера обмена
+        # TODO реализовать восстановление буфера обмена и вынести данный пункт в настройки
         rule_id = self.sender().property('rule_id')
         rule_txt = self.base.get_rule_by_id(rule_id)[3]
         pyperclip.copy(rule_txt)
@@ -235,8 +272,6 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
     def select_template(self, last_comb_found):
         # print('COMBINATION SLOT FUNC')
-        # TODO реализовать функционал вывода набора шаблонов всплывающими сообщениями
-        # TODO реализовать функционал вывода уведомления при вставке шаблона
 
         templates_list = self.base.get_list_rules_by_comb(last_comb_found)
         if len(templates_list) == 1:

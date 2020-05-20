@@ -23,6 +23,15 @@ class BaseManager():
             self.__first_start = False
             self.__initialized = True
 
+    def get_version_from_txt(self):
+        result = ''
+        try:
+            with open('./src/version', 'r') as version_file:
+                result = version_file.read()
+        except:
+            print(traceback.print_exc())
+        return result
+
     def get_parameter(self, name):
         sqlite_base = sqlite3.connect(self.__conf_file_name)
         cursor = sqlite_base.cursor()

@@ -25,22 +25,61 @@ class ConfigWindowForm(QtWidgets.QWidget):
 
         # Присоединяем слоты
         self.ui.pushButton_append.clicked.connect(self.append_rule)
-        self.ui.pushButton_remove.clicked.connect(self.remove_rule)
-        self.ui.pushButton_clear.clicked.connect(self.clear_rule)
+        self.ui.pushButton_remove.clicked.connect(self.__remove_rule)
+        self.ui.pushButton_clear.clicked.connect(self.__clear_rule)
 
-        self.ui.pushButton_move_top.clicked(self.move_top)
-        self.ui.pushButton_move_higer.clicked.connect(self.move_higer)
-        self.ui.pushButton_move_lower.clicked.connect(self.move_lower)
-        self.ui.pushButton_move_lower.clicked.connect(self.move_bottom)
+        self.ui.pushButton_move_top.clicked(self.__move_top)
+        self.ui.pushButton_move_higer.clicked.connect(self.__move_higer)
+        self.ui.pushButton_move_lower.clicked.connect(self.__move_lower)
+        self.ui.pushButton_move_lower.clicked.connect(self.__move_bottom)
 
         self.ui.pushButton_hide.clicked.connect(self.hide_window)
-        self.ui.tableWidget.cellDoubleClicked.connect(self.edit_rule)
+        self.ui.tableWidget.cellDoubleClicked.connect(self.__edit_rule)
 
         self.ui.checkBox_w_hidden_win_start.stateChanged.connect(self.set_w_hidden_win_start)
         self.ui.checkBox_pos_on_first_comb.stateChanged.connect(self.set_pos_on_first_comb)
         self.ui.checkBox_restore_clipboard.stateChanged.connect()
 
         self.update_table()
+
+    def append_rule(self):
+        edit_window.set_edit_id()
+        self.hide()
+        edit_window.show()
+
+    def __edit_rule(self):
+        edit_row_num = self.ui.tableWidget.currentRow()
+        edit_id = int(self.ui.tableWidget.item(edit_row_num, 0).text())
+        edit_window.set_edit_id(edit_id)
+        self.hide()
+        edit_window.show()
+
+    def __remove_rule(self):
+        sel_row_num = self.ui.tableWidget.currentRow()
+        if not sel_row_num < 0:
+            sel_rule_id = int(self.ui.tableWidget.item(sel_row_num, 0).text())
+            if tray_icon_window.base.remove_rule(sel_rule_id):
+                self.update_table()
+
+    def __clear_rule(self):
+        if tray_icon_window.base.remove_all_rules():
+            self.update_table()
+
+    def __move_top(self):
+        # TODO реализовать функционал перемещения комбинации в начало списка
+        print('Смотри TODO')
+
+    def __move_bottom(self):
+        # TODO реализовать функционал перемещения комбинации в конец списка
+        print('Смотри TODO')
+
+    def __move_higer(self):
+        # TODO реализовать функционал перемещения комбинации в списке на позицию выше
+        print('Смотри TODO')
+
+    def __move_lower(self):
+        # TODO реализовать функционал перемещения комбинации в списке на позицию ниже
+        print('Смотри TODO')
 
     def set_w_hidden_win_start(self):
         # TODO реализовать функционал переключения запуска в свернутом виде
@@ -72,45 +111,6 @@ class ConfigWindowForm(QtWidgets.QWidget):
                 self.ui.tableWidget.setItem(row_pos, col_pos, item)
                 col_pos += 1
             row_pos += 1
-
-    def append_rule(self):
-        edit_window.set_edit_id()
-        self.hide()
-        edit_window.show()
-
-    def edit_rule(self):
-        edit_row_num = self.ui.tableWidget.currentRow()
-        edit_id = int(self.ui.tableWidget.item(edit_row_num, 0).text())
-        edit_window.set_edit_id(edit_id)
-        self.hide()
-        edit_window.show()
-
-    def remove_rule(self):
-        sel_row_num = self.ui.tableWidget.currentRow()
-        if not sel_row_num < 0:
-            sel_rule_id = int(self.ui.tableWidget.item(sel_row_num, 0).text())
-            if tray_icon_window.base.remove_rule(sel_rule_id):
-                self.update_table()
-
-    def clear_rule(self):
-        if tray_icon_window.base.remove_all_rules():
-            self.update_table()
-
-    def move_top(self):
-        # TODO реализовать функционал перемещения комбинации в начало списка
-        print('Смотри TODO')
-
-    def move_bottom(self):
-        # TODO реализовать функционал перемещения комбинации в конец списка
-        print('Смотри TODO')
-
-    def move_higer(self):
-        # TODO реализовать функционал перемещения комбинации в списке на позицию выше
-        print('Смотри TODO')
-
-    def move_lower(self):
-        # TODO реализовать функционал перемещения комбинации в списке на позицию ниже
-        print('Смотри TODO')
 
     def hide_window(self):
         self.hide()

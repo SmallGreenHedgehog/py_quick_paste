@@ -18,6 +18,7 @@ class ConfigWindowForm(QtWidgets.QWidget):
         self.ui.setupUi(self)
 
         self.ui.tableWidget.hideColumn(0)
+        self.ui.tableWidget.hideColumn(1)
         self.ui.tableWidget.setColumnWidth(1, 171)
         self.ui.tableWidget.setColumnWidth(2, 228)
         self.ui.tableWidget.setColumnWidth(3, 253)
@@ -25,20 +26,20 @@ class ConfigWindowForm(QtWidgets.QWidget):
 
         # Присоединяем слоты
         self.ui.pushButton_append.clicked.connect(self.append_rule)
+        self.ui.tableWidget.cellDoubleClicked.connect(self.__on_double_click_table)
         self.ui.pushButton_remove.clicked.connect(self.__remove_rule)
         self.ui.pushButton_clear.clicked.connect(self.__clear_rule)
 
-        self.ui.pushButton_move_top.clicked(self.__move_top)
+        self.ui.pushButton_move_top.clicked.connect(self.__move_top)
         self.ui.pushButton_move_higer.clicked.connect(self.__move_higer)
         self.ui.pushButton_move_lower.clicked.connect(self.__move_lower)
         self.ui.pushButton_move_lower.clicked.connect(self.__move_bottom)
 
         self.ui.pushButton_hide.clicked.connect(self.hide_window)
-        self.ui.tableWidget.cellDoubleClicked.connect(self.__edit_rule)
 
         self.ui.checkBox_w_hidden_win_start.stateChanged.connect(self.set_w_hidden_win_start)
         self.ui.checkBox_pos_on_first_comb.stateChanged.connect(self.set_pos_on_first_comb)
-        self.ui.checkBox_restore_clipboard.stateChanged.connect()
+        self.ui.checkBox_restore_clipboard.stateChanged.connect(self.set_restore_clipboard)
 
         self.update_table()
 
@@ -47,12 +48,15 @@ class ConfigWindowForm(QtWidgets.QWidget):
         self.hide()
         edit_window.show()
 
-    def __edit_rule(self):
-        edit_row_num = self.ui.tableWidget.currentRow()
-        edit_id = int(self.ui.tableWidget.item(edit_row_num, 0).text())
+    def edit_rule(self, edit_id):
         edit_window.set_edit_id(edit_id)
         self.hide()
         edit_window.show()
+
+    def __on_double_click_table(self):
+        edit_row_num = self.ui.tableWidget.currentRow()
+        edit_id = int(self.ui.tableWidget.item(edit_row_num, 0).text())
+        self.edit_rule(edit_id)
 
     def __remove_rule(self):
         sel_row_num = self.ui.tableWidget.currentRow()

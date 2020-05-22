@@ -101,7 +101,7 @@ class BaseManager():
         if rule_id != None:  # обновляем правило
             req_text = 'UPDATE RULES SET Combination=?, Name=?, TXT=? WHERE Id=%s' % rule_id
         else:  # добавляем новое правило
-            req_text = 'INSERT INTO RULES (Combination, Name, TXT) VALUES (?, ?, ?)'
+            req_text = 'INSERT INTO RULES (Num, Combination, Name, TXT) VALUES ((SELECT MAX(Num) + 1 FROM RULES), ?, ?, ?)'
 
         sqlite_base = sqlite3.connect(self.__conf_file_name)
         cursor = sqlite_base.cursor()
@@ -311,9 +311,78 @@ class BaseManager():
 
         return ok
 
-    def __init_base(self):
-        # TODO реализовать функционал хранения в базе актуальной версии приложения
+    def __update_database_version_lower_0_22(self):
+        sqlite_base = sqlite3.connect(self.__conf_file_name)
+        cursor = sqlite_base.cursor()
 
+
+
+        update_req_text = 'PRAGMA foreign_keys = 0;\n' \
+                          'DROP TABLE IF EXISTS sqlitestudio_temp_table;\n' \
+                          'CREATE TABLE sqlitestudio_temp_table AS SELECT * FROM RULES;\n' \
+                          'DROP TABLE RULES;\n' \
+                          'CREATE TABLE RULES (\n' \
+                          '    Id INTEGER PRIMARY KEY NOT NULL UNIQUE,\n' \
+                          '    Num INTEGER NOT NULL,\n' \
+                          '    Combination CHAR (50),\n' \
+                          '    Name CHAR (100),\n' \
+                          '    TXT TEXT\n' \
+                          ');\n' \
+                          'INSERT INTO RULES (\n' \
+                          '    Id,\n' \
+                          '    Num,\n' \
+                          '    Combination,\n' \
+                          '    Name,\n' \
+                          '    TXT\n' \
+                          ')\n' \
+                          'SELECT \n' \
+                          '    Id,\n' \
+                          '    Id,\n' \
+                          '    Combination,\n' \
+                          '    Name,\n' \
+                          '    TXT\n' \
+                          'FROM sqlitestudio_temp_table;\n' \
+                          'DROP TABLE sqlitestudio_temp_table;\n' \
+                          'PRAGMA foreign_keys = 1;'
+
+        # print(update_req_text)
+
+        ok = False
+        attempts_q = 5
+        attempts_num = 0;
+
+        while (attempts_num < attempts_q) and (not ok):
+            attempts_num += 1
+            ok = True
+            try:
+                cursor.executescript(update_req_text)
+            except:
+                ok = False
+                print(traceback.print_exc())
+                sleep(1)
+        cursor = ''
+        sqlite_base.close()
+        sqlite_base = ''
+
+        return ok
+
+    def __update_database_on_new_version(self):
+        # TODO реализовать функционал бэкапа базы данных перед обновлением
+        act_version = self.get_parameter('version')
+        new_version = self.get_version_from_txt()
+        float_act_version = 0.21 if act_version is None else float(act_version)
+        float_new_version = float(new_version)
+
+        ok = True
+        if float_act_version < float_new_version:
+            ok = False
+            if float_act_version < 0.22:
+                ok = self.__update_database_version_lower_0_22()
+
+        if ok:
+            self.set_parameter('version', new_version)
+
+    def __init_base(self):
         sqlite_base = sqlite3.connect(self.__conf_file_name)
         cursor = sqlite_base.cursor()
 
@@ -337,6 +406,14 @@ class BaseManager():
                 sleep(1)
         if ok:
             # Создаем таблицу правил
+            req_text = 'CREATE TABLE IF NOT EXISTS RULES (\n' \
+                       '    Id INTEGER PRIMARY KEY NOT NULL UNIQUE\n' \
+                       '    ,Num INTEGER NOT NULL\n' \
+                       '    ,Combination CHAR(50)\n' \
+                       '    ,Name CHAR(100)\n' \
+                       '    ,TXT TEXT\n' \
+                       ');'
+
             ok = False
             attempts_q = 5
             attempts_num = 0;
@@ -345,12 +422,7 @@ class BaseManager():
                 attempts_num += 1
                 ok = True
                 try:
-                    cursor.execute('CREATE TABLE IF NOT EXISTS RULES ('
-                                   'Id INTEGER  PRIMARY KEY NOT NULL'
-                                   ',Combination CHAR(50)'
-                                   ',Name CHAR(100)'
-                                   ',TXT TEXT);'
-                                   )
+                    cursor.execute(req_text)
                 except:
                     ok = False
                     print(traceback.print_exc())
@@ -363,8 +435,14 @@ class BaseManager():
                 def_comb = set()
                 def_comb.add('Key.ctrl')
                 def_comb.add('17')
-                if self.set_rule(str(def_comb), 'Тестовая комбинация', 'Текст тестовой комбинации'):
+                ok = self.set_rule(str(def_comb), 'Тестовая комбинация', 'Текст тестовой комбинации')
+                if ok:
+                    ok = self.set_parameter('version', str(self.get_version_from_txt()))
+                if ok:
                     self.set_parameter('not_firts_start', 'True')
+            else:
+                self.__update_database_on_new_version()
+                # pass
 
         cursor = ''
         sqlite_base.close()

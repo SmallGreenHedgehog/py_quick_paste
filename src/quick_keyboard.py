@@ -159,7 +159,7 @@ class KeyMonitor(QObject):
     def update_search_combs(self, rules_list):
         self.__search_combs.clear()
         for rule in rules_list:
-            search_comb = self.get_set_comb_from_str(rule[1])
+            search_comb = self.get_set_comb_from_str(rule[2])
             self.__search_combs.append(search_comb)
 
     def get_keyboard_layout(self):

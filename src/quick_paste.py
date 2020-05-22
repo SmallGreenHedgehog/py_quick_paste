@@ -19,9 +19,9 @@ class ConfigWindowForm(QtWidgets.QWidget):
 
         self.ui.tableWidget.hideColumn(0)
         self.ui.tableWidget.hideColumn(1)
-        self.ui.tableWidget.setColumnWidth(1, 171)
-        self.ui.tableWidget.setColumnWidth(2, 228)
-        self.ui.tableWidget.setColumnWidth(3, 253)
+        self.ui.tableWidget.setColumnWidth(2, 171)
+        self.ui.tableWidget.setColumnWidth(3, 228)
+        self.ui.tableWidget.setColumnWidth(4, 253)
         self.ui.tableWidget.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
         # Присоединяем слоты
@@ -187,9 +187,9 @@ class EditWindowForm(QtWidgets.QWidget):
     def showEvent(self, event):
         if self.__edit_id != None:
             act_rule = tray_icon_window.base.get_rule_by_id(self.__edit_id)
-            self.__act_comb = act_rule[1]
-            self.ui.lineEdit.setText(act_rule[2])
-            self.ui.plainTextEdit.setPlainText(act_rule[3])
+            self.__act_comb = act_rule[2]
+            self.ui.lineEdit.setText(act_rule[3])
+            self.ui.plainTextEdit.setPlainText(act_rule[4])
             self.ui.label_comb.setText(self.__act_comb)
         else:
             self.__act_comb = ''

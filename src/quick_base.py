@@ -315,8 +315,6 @@ class BaseManager():
         sqlite_base = sqlite3.connect(self.__conf_file_name)
         cursor = sqlite_base.cursor()
 
-
-
         update_req_text = 'PRAGMA foreign_keys = 0;\n' \
                           'DROP TABLE IF EXISTS sqlitestudio_temp_table;\n' \
                           'CREATE TABLE sqlitestudio_temp_table AS SELECT * FROM RULES;\n' \
@@ -366,8 +364,11 @@ class BaseManager():
 
         return ok
 
-    def __update_database_on_new_version(self):
+    def __backup_database_file(self):
         # TODO реализовать функционал бэкапа базы данных перед обновлением
+        return True
+
+    def __update_database_on_new_version(self):
         act_version = self.get_parameter('version')
         new_version = self.get_version_from_txt()
         float_act_version = 0.21 if act_version is None else float(act_version)
@@ -375,12 +376,12 @@ class BaseManager():
 
         ok = True
         if float_act_version < float_new_version:
-            ok = False
-            if float_act_version < 0.22:
-                ok = self.__update_database_version_lower_0_22()
-
-        if ok:
-            self.set_parameter('version', new_version)
+            ok = self.__backup_database_file()
+            if ok:
+                if float_act_version < 0.22:
+                    ok = self.__update_database_version_lower_0_22()
+            if ok:
+                self.set_parameter('version', new_version)
 
     def __init_base(self):
         sqlite_base = sqlite3.connect(self.__conf_file_name)

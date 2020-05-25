@@ -289,6 +289,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             action_temp[num_temp].triggered.connect(self.paste_selected_template)
             num_temp += 1
 
+        self.templates_menu.addSeparator()
         main_menu_action = self.templates_menu.addAction('Главное меню')
         main_menu_action.triggered.connect(self.return_back_main_menu)
 

@@ -365,8 +365,29 @@ class BaseManager():
         return ok
 
     def __backup_database_file(self):
+        database_name = self.__conf_file_name.rsplit('/', 1)[1].rsplit('.', 1)[0]
+        database_path = self.__conf_file_name.rsplit('/', 1)[0]
+
+        new_max_bak_num = 0
+        for conf_file in os.listdir(database_path):
+            if not conf_file.find('config_') < 0:
+                conf_file_name = conf_file.rsplit('.', 1)[0]
+                num_backup = 0
+                try:
+                    num_backup = int(conf_file_name.rsplit('_', 1)[1])
+                except:
+                    pass
+                if num_backup > new_max_bak_num:
+                    new_max_bak_num = num_backup
+        new_max_bak_num += 1
+        database_new_name = database_name + '_' + '{:03}'.format(new_max_bak_num)
+
+        print('database_path = %s' % self.__conf_file_name)
+        print('database_name = %s' % database_name)
+        print('database_new_name = %s' % database_new_name)
+
         # TODO реализовать функционал бэкапа базы данных перед обновлением
-        return True
+        return False
 
     def __update_database_on_new_version(self):
         act_version = self.get_parameter('version')

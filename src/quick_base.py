@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, sys
+import os, shutil
 import sqlite3
 import traceback
 from time import sleep
@@ -380,14 +380,20 @@ class BaseManager():
                 if num_backup > new_max_bak_num:
                     new_max_bak_num = num_backup
         new_max_bak_num += 1
-        database_new_name = database_name + '_' + '{:03}'.format(new_max_bak_num)
+        backup_path = database_path + '/' + database_name + '_' + '{:03}'.format(new_max_bak_num) + '.db'
 
-        print('database_path = %s' % self.__conf_file_name)
-        print('database_name = %s' % database_name)
-        print('database_new_name = %s' % database_new_name)
+        # print('database_path = %s' % self.__conf_file_name)
+        # print('database_name = %s' % database_name)
+        # print('backup_path = %s' % backup_path)
 
-        # TODO реализовать функционал бэкапа базы данных перед обновлением
-        return False
+        ok = True
+        try:
+            shutil.copyfile(self.__conf_file_name, backup_path)
+        except:
+            ok = False
+        if ok:
+            ok = os.path.exists(backup_path)
+        return ok
 
     def __update_database_on_new_version(self):
         act_version = self.get_parameter('version')

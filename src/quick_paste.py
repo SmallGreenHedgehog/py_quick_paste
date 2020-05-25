@@ -17,6 +17,10 @@ class ConfigWindowForm(QtWidgets.QWidget):
         self.ui = ConfWindow()
         self.ui.setupUi(self)
 
+        # Список доп настроек
+        self.ui.checkBox_w_hidden_win_start.setChecked(tray_icon_window.get_w_hidden_win_start())
+
+        # Таблица шаблонов
         self.ui.tableWidget.hideColumn(0)
         self.ui.tableWidget.hideColumn(1)
         self.ui.tableWidget.setColumnWidth(2, 171)
@@ -86,8 +90,7 @@ class ConfigWindowForm(QtWidgets.QWidget):
         print('Смотри TODO')
 
     def set_w_hidden_win_start(self):
-        # TODO реализовать функционал переключения запуска в свернутом виде
-        print('Смотри TODO')
+        tray_icon_window.set_w_hidden_win_start(self.ui.checkBox_w_hidden_win_start.isChecked())
 
     def set_pos_on_first_comb(self):
         # TODO реализовать функционал переключения позиционирования на первом шаблоне списка
@@ -223,13 +226,14 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
         # Присоединяем слоты
         self.activated.connect(self.find_tray_icon_pos)
-        self.main_window_action.triggered.connect(self.main_window_show)
+        self.main_window_action.triggered.connect(self.__main_window_show)
         self.exit_action.triggered.connect(QtCore.QCoreApplication.instance().quit)
 
         self.base = BaseManager()
         self.keys = KeyMonitor()
         self.keys.comb_found.connect(self.select_template)
 
+        # Получаем координаты иконки для клика
         self.__last_cursor_pos = QtGui.QCursor().pos()
 
         self.find_timer = QtCore.QTimer()
@@ -243,6 +247,13 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
                            '    activate\n' \
                            'end tell\n' \
                            ''
+
+    def get_w_hidden_win_start(self):
+        state_in_base = self.base.get_parameter('w_hidden_win_start')
+        return (state_in_base == 'True') if state_in_base != None else False
+
+    def set_w_hidden_win_start(self, new_state=True):
+        self.base.set_parameter('w_hidden_win_start', new_state)
 
     def return_back_main_menu(self):
         self.setContextMenu(self.main_menu)
@@ -294,7 +305,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             self.__last_cursor_pos = QtGui.QCursor().pos()
             self.keys.click_mouse_on_tray_icon_menu(self.__tray_icon_x_pos)
 
-    def main_window_show(self):
+    def __main_window_show(self):
         if self.main_window_action.isChecked():
             conf_window.show()
             getattr(conf_window, "raise")()
@@ -312,5 +323,7 @@ if __name__ == "__main__":
     edit_window = EditWindowForm()
 
     tray_icon_window.show()
+    if not tray_icon_window.get_w_hidden_win_start():
+        tray_icon_window.main_window_action.trigger()
 
     sys.exit(app.exec_())

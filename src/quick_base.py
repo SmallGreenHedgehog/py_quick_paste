@@ -358,9 +358,50 @@ class BaseManager():
                 ok = False
                 print(traceback.print_exc())
                 sleep(1)
+
+        if ok:
+            update_req_text = 'PRAGMA foreign_keys = 0;\n' \
+                              'CREATE TABLE sqlitestudio_temp_table AS SELECT * FROM PARAMS;\n' \
+                              'DROP TABLE PARAMS;\n' \
+                              'CREATE TABLE PARAMS (\n' \
+                              '    Id   INTEGER    PRIMARY KEY\n' \
+                              '    NOT NULL,\n' \
+                              '    Name CHAR (100) UNIQUE ON CONFLICT REPLACE,\n' \
+                              '    Val  CHAR (100)\n' \
+                              ');\n' \
+                              'INSERT INTO PARAMS (\n' \
+                              '    Id,\n' \
+                              '    Name,\n' \
+                              '    Val\n' \
+                              ')\n' \
+                              'SELECT Id,\n' \
+                              '    Name,\n' \
+                              '    Val\n' \
+                              'FROM sqlitestudio_temp_table;\n' \
+                              'DROP TABLE sqlitestudio_temp_table;\n' \
+                              'PRAGMA foreign_keys = 1;'
+
+            # print(update_req_text)
+
+            ok = False
+            attempts_q = 5
+            attempts_num = 0;
+
+            while (attempts_num < attempts_q) and (not ok):
+                attempts_num += 1
+                ok = True
+                try:
+                    cursor.executescript(update_req_text)
+                except:
+                    ok = False
+                    print(traceback.print_exc())
+                    sleep(1)
+
         cursor = ''
         sqlite_base.close()
         sqlite_base = ''
+
+        self.set_parameter('w_hidden_win_start', True)
 
         return ok
 
@@ -391,6 +432,8 @@ class BaseManager():
             shutil.copyfile(self.__conf_file_name, backup_path)
         except:
             ok = False
+            print(traceback.print_exc())
+
         if ok:
             ok = os.path.exists(backup_path)
         return ok
@@ -423,10 +466,11 @@ class BaseManager():
             attempts_num += 1
             ok = True
             try:
-                cursor.execute('CREATE TABLE IF NOT EXISTS PARAMS ('
-                               'Id INTEGER  PRIMARY KEY NOT NULL'
-                               ',Name CHAR(100)'
-                               ',Val CHAR(100));'
+                cursor.execute('CREATE TABLE IF NOT EXISTS PARAMS (\n'
+                               'Id INTEGER  PRIMARY KEY NOT NULL\n'
+                               ',Name CHAR (100) UNIQUE ON CONFLICT REPLACE\n'
+                               ',Val CHAR(100)\n'
+                               ');'
                                )
             except:
                 ok = False

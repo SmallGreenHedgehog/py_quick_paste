@@ -199,13 +199,14 @@ class KeyMonitor(QObject):
         cont.release(keyboard.Key.cmd)
         cont = ''
 
-    def click_mouse_on_tray_icon_menu(self, tray_icon_x_pos):
+    def click_mouse_on_tray_icon_menu(self, tray_icon_x_pos, move_to_first_menu_item = False):
         cont = mouse.Controller()
         current_pos = cont.position
         cont.move(tray_icon_x_pos - current_pos[0], 0 - current_pos[1])
         sleep(0.25)
         cont.click(mouse.Button.left, 1)
-        cont.move(0, 55)
+        if move_to_first_menu_item:
+            cont.move(0, 35)
         cont = ''
 
     def pos_mouse(self, x_pos, y_pos):

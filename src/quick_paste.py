@@ -19,6 +19,7 @@ class ConfigWindowForm(QtWidgets.QWidget):
 
         # Список доп настроек
         self.ui.checkBox_w_hidden_win_start.setChecked(tray_icon_window.get_w_hidden_win_start())
+        self.ui.checkBox_pos_on_first_comb.setChecked(tray_icon_window.get_pos_on_first_comb())
 
         # Таблица шаблонов
         self.ui.tableWidget.hideColumn(0)
@@ -93,8 +94,7 @@ class ConfigWindowForm(QtWidgets.QWidget):
         tray_icon_window.set_w_hidden_win_start(self.ui.checkBox_w_hidden_win_start.isChecked())
 
     def set_pos_on_first_comb(self):
-        # TODO реализовать функционал переключения позиционирования на первом шаблоне списка
-        print('Смотри TODO')
+        tray_icon_window.set_pos_on_first_comb(self.ui.checkBox_pos_on_first_comb.isChecked())
 
     def set_restore_clipboard(self):
         # TODO реализовать функционал переключения восстановления буфера обмена после вставки шаблона
@@ -231,7 +231,10 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
         self.base = BaseManager()
         self.keys = KeyMonitor()
-        self.keys.comb_found.connect(self.select_template)
+        self.keys.comb_found.connect(self.select_template_event)
+
+        # Свойства
+        self.__pos_on_first_comb = (self.base.get_parameter('pos_on_first_comb') == 'True')
 
         # Получаем координаты иконки для клика
         self.__last_cursor_pos = QtGui.QCursor().pos()
@@ -249,32 +252,33 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
                            ''
 
     def get_w_hidden_win_start(self):
-        state_in_base = self.base.get_parameter('w_hidden_win_start')
-        return (state_in_base == 'True') if state_in_base != None else False
+        return self.base.get_parameter('w_hidden_win_start') == 'True'
 
     def set_w_hidden_win_start(self, new_state=True):
         self.base.set_parameter('w_hidden_win_start', new_state)
 
+    def get_pos_on_first_comb(self):
+        return self.__pos_on_first_comb
+
+    def set_pos_on_first_comb(self, new_state=True):
+        self.__pos_on_first_comb = new_state
+        self.base.set_parameter('pos_on_first_comb', new_state)
+
     def return_back_main_menu(self):
         self.setContextMenu(self.main_menu)
 
-    def on_select_template(self):
+    def paste_selected_template(self):
         # TODO реализовать восстановление буфера обмена и вынести данный пункт в настройки
         rule_id = self.sender().property('rule_id')
         rule_txt = self.base.get_rule_by_id(rule_id)[3]
-        pyperclip.copy(rule_txt)
-        pyperclip.paste()
+        pyperclip.copy(rule_txt) # Помещаем текст выбранного шаблона в буффер
         sleep(0.2)
-        self.keys.cmd_paste()
-        self.return_back_main_menu()
-        self.keys.pos_mouse(self.__last_cursor_pos.x(), self.__last_cursor_pos.y())
+        self.keys.cmd_paste() # Вызываем комбинацию встаки из буфера обмена
+        self.return_back_main_menu() # Восстанавливаем главное меню
+        self.keys.pos_mouse(self.__last_cursor_pos.x(), self.__last_cursor_pos.y()) # Возвращаем курсор на место
 
     def fill_templates_menu(self, templates_list):
         self.templates_menu.clear()
-
-        main_menu_action = self.templates_menu.addAction('Главное меню')
-        main_menu_action.triggered.connect(self.return_back_main_menu)
-
         action_temp = []
         num_temp = 0
         for temp in templates_list:
@@ -282,28 +286,29 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             temp_name = temp[1]
             action_temp.append(self.templates_menu.addAction(temp_name))
             action_temp[num_temp].setProperty('rule_id', temp_id)
-            action_temp[num_temp].triggered.connect(self.on_select_template)
+            action_temp[num_temp].triggered.connect(self.paste_selected_template)
             num_temp += 1
 
-    def select_template(self, last_comb_found):
+        main_menu_action = self.templates_menu.addAction('Главное меню')
+        main_menu_action.triggered.connect(self.return_back_main_menu)
+
+    def select_template_event(self, last_comb_found):
         # print('COMBINATION SLOT FUNC')
 
         templates_list = self.base.get_list_rules_by_comb(last_comb_found)
         if len(templates_list) == 1:
             self.templates_menu.clear()
-            main_menu_action = self.templates_menu.addAction('Главное меню')
-            main_menu_action.triggered.connect(self.return_back_main_menu)
 
             single_temp_act = self.templates_menu.addAction(templates_list[0][1])
             single_temp_act.setProperty('rule_id', templates_list[0][0])
-            single_temp_act.triggered.connect(self.on_select_template)
-            self.setContextMenu(self.templates_menu)
+            single_temp_act.triggered.connect(self.paste_selected_template)
+
             single_temp_act.triggered.emit()
         else:
             self.fill_templates_menu(templates_list)
             self.setContextMenu(self.templates_menu)
             self.__last_cursor_pos = QtGui.QCursor().pos()
-            self.keys.click_mouse_on_tray_icon_menu(self.__tray_icon_x_pos)
+            self.keys.click_mouse_on_tray_icon_menu(self.__tray_icon_x_pos, self.get_pos_on_first_comb())
 
     def __main_window_show(self):
         if self.main_window_action.isChecked():

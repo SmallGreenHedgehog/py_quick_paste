@@ -66,10 +66,17 @@ class ConfigWindowForm(QtWidgets.QWidget):
 
     def __remove_rule(self):
         sel_row_num = self.ui.tableWidget.currentRow()
+        sel_col_num = self.ui.tableWidget.currentColumn()
         if not sel_row_num < 0:
             sel_rule_id = int(self.ui.tableWidget.item(sel_row_num, 0).text())
             if manager_w_icon_window.remove_rule(sel_rule_id):
                 self.update_table()
+            max_row_num = self.ui.tableWidget.rowCount() - 1
+            if not max_row_num < 0:
+                if not sel_row_num > max_row_num:
+                    self.ui.tableWidget.setCurrentCell(sel_row_num, sel_col_num)
+                else:
+                    self.ui.tableWidget.setCurrentCell(max_row_num, sel_col_num)
 
     def __clear_rules(self):
         if manager_w_icon_window.remove_all_rules():

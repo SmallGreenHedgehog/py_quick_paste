@@ -18,8 +18,9 @@ class ConfigWindowForm(QtWidgets.QWidget):
         self.ui.setupUi(self)
 
         # Список доп настроек
-        self.ui.checkBox_w_hidden_win_start.setChecked(tray_icon_window.get_w_hidden_win_start())
-        self.ui.checkBox_pos_on_first_comb.setChecked(tray_icon_window.get_pos_on_first_comb())
+        self.ui.checkBox_w_hidden_win_start.setChecked(manager_w_icon_window.get_w_hidden_win_start())
+        self.ui.checkBox_pos_on_first_comb.setChecked(manager_w_icon_window.get_pos_on_first_comb())
+        self.ui.checkBox_restore_clipboard.setChecked(manager_w_icon_window.get_restore_clipboard())
 
         # Таблица шаблонов
         self.ui.tableWidget.hideColumn(0)
@@ -67,11 +68,11 @@ class ConfigWindowForm(QtWidgets.QWidget):
         sel_row_num = self.ui.tableWidget.currentRow()
         if not sel_row_num < 0:
             sel_rule_id = int(self.ui.tableWidget.item(sel_row_num, 0).text())
-            if tray_icon_window.base.remove_rule(sel_rule_id):
+            if manager_w_icon_window.__base.remove_rule(sel_rule_id):
                 self.update_table()
 
     def __clear_rule(self):
-        if tray_icon_window.base.remove_all_rules():
+        if manager_w_icon_window.__base.remove_all_rules():
             self.update_table()
 
     def __move_top(self):
@@ -91,22 +92,21 @@ class ConfigWindowForm(QtWidgets.QWidget):
         print('Смотри TODO')
 
     def set_w_hidden_win_start(self):
-        tray_icon_window.set_w_hidden_win_start(self.ui.checkBox_w_hidden_win_start.isChecked())
+        manager_w_icon_window.set_w_hidden_win_start(self.ui.checkBox_w_hidden_win_start.isChecked())
 
     def set_pos_on_first_comb(self):
-        tray_icon_window.set_pos_on_first_comb(self.ui.checkBox_pos_on_first_comb.isChecked())
+        manager_w_icon_window.set_pos_on_first_comb(self.ui.checkBox_pos_on_first_comb.isChecked())
 
     def set_restore_clipboard(self):
-        # TODO реализовать функционал переключения восстановления буфера обмена после вставки шаблона
-        print('Смотри TODO')
+        manager_w_icon_window.set_restore_clipboard(self.ui.checkBox_restore_clipboard.isChecked())
 
     def update_table(self):
         self.ui.tableWidget.setRowCount(0)
-        rules_list = tray_icon_window.base.get_all_rules()
+        rules_list = manager_w_icon_window.get_all_rules_from_base()
 
         # Обновим так же список искомых комбинаций, чтобы не дергать лишний раз базу
         # print('rules_list = %s' % rules_list)
-        tray_icon_window.keys.update_search_combs(rules_list)
+        manager_w_icon_window.update_search_combs_list_in_keys(rules_list)
 
         row_pos = 0
         for rule in rules_list:
@@ -121,7 +121,7 @@ class ConfigWindowForm(QtWidgets.QWidget):
 
     def hide_window(self):
         self.hide()
-        tray_icon_window.main_window_action.setChecked(False)
+        manager_w_icon_window.main_window_action.setChecked(False)
 
 
 class EditWindowForm(QtWidgets.QWidget):
@@ -154,14 +154,14 @@ class EditWindowForm(QtWidgets.QWidget):
         return result
 
     def set_comb(self):
-        self.__act_comb = tray_icon_window.keys.get_combination()
+        self.__act_comb = manager_w_icon_window.__keys.get_combination()
         if self.__act_comb is not None:
             self.ui.label_comb.setText(str(self.__act_comb))
             self.ui.label_comb.repaint()
 
     def save_rule(self):
         if self.__rule_is_correct():
-            ok = tray_icon_window.base.set_rule(
+            ok = manager_w_icon_window.__base.set_rule(
                 self.ui.label_comb.text().strip()
                 , self.ui.lineEdit.text().strip()
                 , self.ui.plainTextEdit.toPlainText()
@@ -172,7 +172,7 @@ class EditWindowForm(QtWidgets.QWidget):
                 conf_window.update_table()
 
             self.hide()
-            tray_icon_window.main_window_action.setChecked(True)
+            manager_w_icon_window.main_window_action.setChecked(True)
             conf_window.show()
         else:
             msg_box = QtWidgets.QMessageBox(self)
@@ -184,12 +184,12 @@ class EditWindowForm(QtWidgets.QWidget):
 
     def cancel_rule(self):
         self.hide()
-        tray_icon_window.main_window_action.setChecked(True)
+        manager_w_icon_window.main_window_action.setChecked(True)
         conf_window.show()
 
     def showEvent(self, event):
         if self.__edit_id != None:
-            act_rule = tray_icon_window.base.get_rule_by_id(self.__edit_id)
+            act_rule = manager_w_icon_window.__base.get_rule_by_id(self.__edit_id)
             self.__act_comb = act_rule[2]
             self.ui.lineEdit.setText(act_rule[3])
             self.ui.plainTextEdit.setPlainText(act_rule[4])
@@ -201,7 +201,7 @@ class EditWindowForm(QtWidgets.QWidget):
             self.ui.plainTextEdit.clear()
 
 
-class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
+class SystemMangerWithIcon(QtWidgets.QSystemTrayIcon):
     def find_tray_icon_pos(self):
         x_pos = self.geometry().x()
         if x_pos < 0:
@@ -214,7 +214,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         icon_path = os.path.join(os.path.dirname(sys.argv[0]), 'ui_files/icon.png')
         # print('icon_path = %s' % icon_path)
         icon = QtGui.QIcon(icon_path)
-        super(SystemTrayIcon, self).__init__(icon, parent)
+        super(SystemMangerWithIcon, self).__init__(icon, parent)
 
         self.main_menu = QtWidgets.QMenu()
         self.main_window_action = self.main_menu.addAction('Настройки')
@@ -229,12 +229,13 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.main_window_action.triggered.connect(self.__main_window_show)
         self.exit_action.triggered.connect(QtCore.QCoreApplication.instance().quit)
 
-        self.base = BaseManager()
-        self.keys = KeyMonitor()
-        self.keys.comb_found.connect(self.select_template_event)
+        self.__base = BaseManager()
+        self.__keys = KeyMonitor()
+        self.__keys.comb_found.connect(self.select_template_event)
 
         # Свойства
-        self.__pos_on_first_comb = (self.base.get_parameter('pos_on_first_comb') == 'True')
+        self.__pos_on_first_comb = (self.__base.get_parameter('pos_on_first_comb') == 'True')
+        self.__restore_clipboard = (self.__base.get_parameter('restore_clipboard') == 'True')
 
         # Получаем координаты иконки для клика
         self.__last_cursor_pos = QtGui.QCursor().pos()
@@ -251,31 +252,50 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
                            'end tell\n' \
                            ''
 
+    def get_all_rules_from_base(self):
+        return self.__base.get_all_rules()
+
+    def update_search_combs_list_in_keys(self, rules_list):
+        self.__keys.update_search_combs(rules_list)
+
     def get_w_hidden_win_start(self):
-        return self.base.get_parameter('w_hidden_win_start') == 'True'
+        return self.__base.get_parameter('w_hidden_win_start') == 'True'
 
     def set_w_hidden_win_start(self, new_state=True):
-        self.base.set_parameter('w_hidden_win_start', new_state)
+        self.__base.set_parameter('w_hidden_win_start', new_state)
 
     def get_pos_on_first_comb(self):
         return self.__pos_on_first_comb
 
     def set_pos_on_first_comb(self, new_state=True):
         self.__pos_on_first_comb = new_state
-        self.base.set_parameter('pos_on_first_comb', new_state)
+        self.__base.set_parameter('pos_on_first_comb', new_state)
+
+    def set_restore_clipboard(self, new_state=True):
+        self.__restore_clipboard = new_state
+        self.__base.set_parameter('restore_clipboard', new_state)
+
+    def get_restore_clipboard(self):
+        return self.__restore_clipboard
 
     def return_back_main_menu(self):
         self.setContextMenu(self.main_menu)
 
     def paste_selected_template(self):
-        # TODO реализовать восстановление буфера обмена и вынести данный пункт в настройки
+        need_save_restore_clipboard = manager_w_icon_window.get_restore_clipboard()
+        if need_save_restore_clipboard:
+            tmp_clipboard = pyperclip.paste()
+
         rule_id = self.sender().property('rule_id')
-        rule_txt = self.base.get_rule_by_id(rule_id)[3]
-        pyperclip.copy(rule_txt) # Помещаем текст выбранного шаблона в буффер
+        rule_txt = self.__base.get_rule_by_id(rule_id)[3]
+        pyperclip.copy(rule_txt)  # Помещаем текст выбранного шаблона в буффер
         sleep(0.2)
-        self.keys.cmd_paste() # Вызываем комбинацию встаки из буфера обмена
-        self.return_back_main_menu() # Восстанавливаем главное меню
-        self.keys.pos_mouse(self.__last_cursor_pos.x(), self.__last_cursor_pos.y()) # Возвращаем курсор на место
+        self.__keys.cmd_paste()  # Вызываем комбинацию встаки из буфера обмена
+        self.return_back_main_menu()  # Восстанавливаем главное меню
+        self.__keys.pos_mouse(self.__last_cursor_pos.x(), self.__last_cursor_pos.y())  # Возвращаем курсор на место
+
+        if need_save_restore_clipboard:
+            pyperclip.copy(tmp_clipboard)
 
     def fill_templates_menu(self, templates_list):
         self.templates_menu.clear()
@@ -296,7 +316,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
     def select_template_event(self, last_comb_found):
         # print('COMBINATION SLOT FUNC')
 
-        templates_list = self.base.get_list_rules_by_comb(last_comb_found)
+        templates_list = self.__base.get_list_rules_by_comb(last_comb_found)
         if len(templates_list) == 1:
             self.templates_menu.clear()
 
@@ -309,7 +329,7 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             self.fill_templates_menu(templates_list)
             self.setContextMenu(self.templates_menu)
             self.__last_cursor_pos = QtGui.QCursor().pos()
-            self.keys.click_mouse_on_tray_icon_menu(self.__tray_icon_x_pos, self.get_pos_on_first_comb())
+            self.__keys.click_mouse_on_tray_icon_menu(self.__tray_icon_x_pos, self.get_pos_on_first_comb())
 
     def __main_window_show(self):
         if self.main_window_action.isChecked():
@@ -324,12 +344,12 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setApplicationName('py_quick_paste')
 
-    tray_icon_window = SystemTrayIcon()
+    manager_w_icon_window = SystemMangerWithIcon()
     conf_window = ConfigWindowForm()
     edit_window = EditWindowForm()
 
-    tray_icon_window.show()
-    if not tray_icon_window.get_w_hidden_win_start():
-        tray_icon_window.main_window_action.trigger()
+    manager_w_icon_window.show()
+    if not manager_w_icon_window.get_w_hidden_win_start():
+        manager_w_icon_window.main_window_action.trigger()
 
     sys.exit(app.exec_())

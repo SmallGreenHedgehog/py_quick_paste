@@ -68,16 +68,20 @@ class ConfigWindowForm(QtWidgets.QWidget):
         sel_row_num = self.ui.tableWidget.currentRow()
         if not sel_row_num < 0:
             sel_rule_id = int(self.ui.tableWidget.item(sel_row_num, 0).text())
-            if manager_w_icon_window.__base.remove_rule(sel_rule_id):
+            if manager_w_icon_window.remove_rule(sel_rule_id):
                 self.update_table()
 
     def __clear_rules(self):
-        if manager_w_icon_window.__base.remove_all_rules():
+        if manager_w_icon_window.remove_all_rules():
             self.update_table()
 
     def __move_rule_top(self):
         # TODO реализовать функционал перемещения комбинации в начало списка
-        print('Смотри TODO')
+        sel_row_num = self.ui.tableWidget.currentRow()
+        if not sel_row_num < 0:
+            sel_rule_id = int(self.ui.tableWidget.item(sel_row_num, 0).text())
+
+        print('TODO реализовать функционал перемещения комбинации в начало списка')
 
     def __move_rule_bottom(self):
         # TODO реализовать функционал перемещения комбинации в конец списка
@@ -154,14 +158,14 @@ class EditWindowForm(QtWidgets.QWidget):
         return result
 
     def set_comb(self):
-        self.__act_comb = manager_w_icon_window.__keys.get_combination()
+        self.__act_comb = manager_w_icon_window.get_combination()
         if self.__act_comb is not None:
             self.ui.label_comb.setText(str(self.__act_comb))
             self.ui.label_comb.repaint()
 
     def save_rule(self):
         if self.__rule_is_correct():
-            ok = manager_w_icon_window.__base.set_rule(
+            ok = manager_w_icon_window.set_rule(
                 self.ui.label_comb.text().strip()
                 , self.ui.lineEdit.text().strip()
                 , self.ui.plainTextEdit.toPlainText()
@@ -189,7 +193,7 @@ class EditWindowForm(QtWidgets.QWidget):
 
     def showEvent(self, event):
         if self.__edit_id != None:
-            act_rule = manager_w_icon_window.__base.get_rule_by_id(self.__edit_id)
+            act_rule = manager_w_icon_window.get_rule_by_id(self.__edit_id)
             self.__act_comb = act_rule[2]
             self.ui.lineEdit.setText(act_rule[3])
             self.ui.plainTextEdit.setPlainText(act_rule[4])
@@ -254,6 +258,21 @@ class SystemMangerWithIcon(QtWidgets.QSystemTrayIcon):
 
     def get_all_rules_from_base(self):
         return self.__base.get_all_rules()
+
+    def remove_rule(self, sel_rule_id):
+        return self.__base.remove_rule(sel_rule_id)
+
+    def remove_all_rules(self):
+        return self.__base.remove_all_rules()
+
+    def set_rule(self, rule_comb, rule_name, rule_text, rule_id=None):
+        return self.__base.set_rule(rule_comb, rule_name, rule_text, rule_id)
+
+    def get_rule_by_id(self, rule_id):
+        return self.__base.get_rule_by_id(rule_id)
+
+    def get_combination(self):
+        return self.__keys.get_combination()
 
     def update_search_combs_list(self, rules_list):
         self.__keys.update_search_combs(rules_list)

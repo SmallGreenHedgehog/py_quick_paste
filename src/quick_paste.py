@@ -34,12 +34,12 @@ class ConfigWindowForm(QtWidgets.QWidget):
         self.ui.pushButton_append.clicked.connect(self.append_rule)
         self.ui.tableWidget.cellDoubleClicked.connect(self.__on_double_click_table)
         self.ui.pushButton_remove.clicked.connect(self.__remove_rule)
-        self.ui.pushButton_clear.clicked.connect(self.__clear_rule)
+        self.ui.pushButton_clear.clicked.connect(self.__clear_rules)
 
-        self.ui.pushButton_move_top.clicked.connect(self.__move_top)
-        self.ui.pushButton_move_higer.clicked.connect(self.__move_higer)
-        self.ui.pushButton_move_lower.clicked.connect(self.__move_lower)
-        self.ui.pushButton_move_lower.clicked.connect(self.__move_bottom)
+        self.ui.pushButton_move_top.clicked.connect(self.__move_rule_top)
+        self.ui.pushButton_move_higer.clicked.connect(self.__move_rule_higer)
+        self.ui.pushButton_move_lower.clicked.connect(self.__move_rule_lower)
+        self.ui.pushButton_move_lower.clicked.connect(self.__move_rule_bottom)
 
         self.ui.pushButton_hide.clicked.connect(self.hide_window)
 
@@ -71,23 +71,23 @@ class ConfigWindowForm(QtWidgets.QWidget):
             if manager_w_icon_window.__base.remove_rule(sel_rule_id):
                 self.update_table()
 
-    def __clear_rule(self):
+    def __clear_rules(self):
         if manager_w_icon_window.__base.remove_all_rules():
             self.update_table()
 
-    def __move_top(self):
+    def __move_rule_top(self):
         # TODO реализовать функционал перемещения комбинации в начало списка
         print('Смотри TODO')
 
-    def __move_bottom(self):
+    def __move_rule_bottom(self):
         # TODO реализовать функционал перемещения комбинации в конец списка
         print('Смотри TODO')
 
-    def __move_higer(self):
+    def __move_rule_higer(self):
         # TODO реализовать функционал перемещения комбинации в списке на позицию выше
         print('Смотри TODO')
 
-    def __move_lower(self):
+    def __move_rule_lower(self):
         # TODO реализовать функционал перемещения комбинации в списке на позицию ниже
         print('Смотри TODO')
 

@@ -47,6 +47,8 @@ class ConfigWindowForm(QtWidgets.QWidget):
         self.ui.checkBox_pos_on_first_comb.stateChanged.connect(self.set_pos_on_first_comb)
         self.ui.checkBox_restore_clipboard.stateChanged.connect(self.set_restore_clipboard)
 
+        self.__base = BaseManager()
+
         self.update_table()
 
     def append_rule(self):
@@ -69,7 +71,7 @@ class ConfigWindowForm(QtWidgets.QWidget):
         sel_col_num = self.ui.tableWidget.currentColumn()
         if not sel_row_num < 0:
             sel_rule_id = int(self.ui.tableWidget.item(sel_row_num, 0).text())
-            if manager_w_icon_window.remove_rule(sel_rule_id):
+            if self.__base.remove_rule(sel_rule_id):
                 self.update_table()
             max_row_num = self.ui.tableWidget.rowCount() - 1
             if not max_row_num < 0:
@@ -79,7 +81,7 @@ class ConfigWindowForm(QtWidgets.QWidget):
                     self.ui.tableWidget.setCurrentCell(max_row_num, sel_col_num)
 
     def __clear_rules(self):
-        if manager_w_icon_window.remove_all_rules():
+        if self.__base.remove_all_rules():
             self.update_table()
 
     def __move_rule_top(self):
@@ -113,7 +115,7 @@ class ConfigWindowForm(QtWidgets.QWidget):
 
     def update_table(self):
         self.ui.tableWidget.setRowCount(0)
-        rules_list = manager_w_icon_window.get_all_rules_from_base()
+        rules_list = self.__base.get_all_rules()
 
         # Обновим так же список искомых комбинаций, чтобы не дергать лишний раз базу
         # print('rules_list = %s' % rules_list)
@@ -172,7 +174,7 @@ class EditWindowForm(QtWidgets.QWidget):
 
     def save_rule(self):
         if self.__rule_is_correct():
-            ok = manager_w_icon_window.set_rule(
+            ok = self.__base.set_rule(
                 self.ui.label_comb.text().strip()
                 , self.ui.lineEdit.text().strip()
                 , self.ui.plainTextEdit.toPlainText()
@@ -200,7 +202,7 @@ class EditWindowForm(QtWidgets.QWidget):
 
     def showEvent(self, event):
         if self.__edit_id != None:
-            act_rule = manager_w_icon_window.get_rule_by_id(self.__edit_id)
+            act_rule = self.__base.get_rule_by_id(self.__edit_id)
             self.__act_comb = act_rule[2]
             self.ui.lineEdit.setText(act_rule[3])
             self.ui.plainTextEdit.setPlainText(act_rule[4])
@@ -262,21 +264,6 @@ class SystemMangerWithIcon(QtWidgets.QSystemTrayIcon):
                            '    activate\n' \
                            'end tell\n' \
                            ''
-
-    def get_all_rules_from_base(self):
-        return self.__base.get_all_rules()
-
-    def remove_rule(self, sel_rule_id):
-        return self.__base.remove_rule(sel_rule_id)
-
-    def remove_all_rules(self):
-        return self.__base.remove_all_rules()
-
-    def set_rule(self, rule_comb, rule_name, rule_text, rule_id=None):
-        return self.__base.set_rule(rule_comb, rule_name, rule_text, rule_id)
-
-    def get_rule_by_id(self, rule_id):
-        return self.__base.get_rule_by_id(rule_id)
 
     def get_combination(self):
         return self.__keys.get_combination()

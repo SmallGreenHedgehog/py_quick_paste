@@ -154,7 +154,7 @@ class BaseManager():
             attempts_num += 1
             ok = True
             try:
-                cursor.execute('SELECT * FROM RULES')
+                cursor.execute('SELECT * FROM RULES ORDER by Num')
             except:
                 ok = False
                 print(traceback.print_exc())
@@ -231,12 +231,58 @@ class BaseManager():
         sqlite_base = ''
         return result
 
+    def move_rule_top(self, rule_id):
+        if rule_id != None:
+            cur_rule_num = self.get_rule_by_id(rule_id)[1]
+
+            sqlite_base = sqlite3.connect(self.__conf_file_name)
+            cursor = sqlite_base.cursor()
+
+            move_top_req = f'UPDATE RULES SET Num=(SELECT MAX(RULES.Num) + 1 FROM RULES) WHERE ID={rule_id};\n' \
+                           f'UPDATE RULES SET Num=Num + 1 WHERE Num<{cur_rule_num};\n' \
+                           f'UPDATE RULES SET Num=1 WHERE ID={rule_id};'
+
+            ok = False
+            attempts_q = 5
+            attempts_num = 0;
+
+            print(move_top_req)
+
+            while (attempts_num < attempts_q) and (not ok):
+                attempts_num += 1
+                ok = True
+                try:
+                    cursor.executescript(move_top_req)
+                except:
+                    ok = False
+                    print(traceback.print_exc())
+                    sleep(1)
+            if ok:
+                ok = False
+                attempts_q = 5
+                attempts_num = 0;
+
+                while (attempts_num < attempts_q) and (not ok):
+                    attempts_num += 1
+                    ok = True
+                    try:
+                        sqlite_base.commit()
+                    except:
+                        ok = False
+                        print(traceback.print_exc())
+                        sleep(1)
+
+            cursor = ''
+            sqlite_base.close()
+            sqlite_base = ''
+
+            return ok
+
     def remove_rule(self, rule_id):
         if rule_id != None:
             sqlite_base = sqlite3.connect(self.__conf_file_name)
             cursor = sqlite_base.cursor()
 
-            # Создаем таблицу параметров
             ok = False
             attempts_q = 5
             attempts_num = 0;
@@ -275,7 +321,6 @@ class BaseManager():
         sqlite_base = sqlite3.connect(self.__conf_file_name)
         cursor = sqlite_base.cursor()
 
-        # Создаем таблицу параметров
         ok = False
         attempts_q = 5
         attempts_num = 0;

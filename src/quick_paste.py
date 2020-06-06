@@ -86,12 +86,14 @@ class ConfigWindowForm(QtWidgets.QWidget):
             self.update_table()
 
     def __move_rule_top(self):
-        # TODO реализовать функционал перемещения комбинации в начало списка
         sel_row_num = self.ui.tableWidget.currentRow()
+        sel_col_num = self.ui.tableWidget.currentColumn()
         if not sel_row_num < 0:
             sel_rule_id = int(self.ui.tableWidget.item(sel_row_num, 0).text())
-
-        print('TODO реализовать функционал перемещения комбинации в начало списка')
+            ok = self.__base.move_rule_top(sel_rule_id)
+            self.update_table()
+            if ok:
+                self.ui.tableWidget.setCurrentCell(0, sel_col_num)
 
     def __move_rule_bottom(self):
         # TODO реализовать функционал перемещения комбинации в конец списка

@@ -206,7 +206,7 @@ class BaseManager():
             list_of_combs.append('\'%s\'' % c)
         cond_text = cond_text[5:]
 
-        req_text = 'SELECT Id, Name FROM RULES' + (' WHERE ' + cond_text if cond_text else '')
+        req_text = 'SELECT Id, Name FROM RULES' + (' WHERE ' + cond_text if cond_text else '') + 'ORDER by Num'
 
         result = None
 

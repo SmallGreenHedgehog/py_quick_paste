@@ -107,12 +107,25 @@ class ConfigWindowForm(QtWidgets.QWidget):
                 self.ui.tableWidget.setCurrentCell(max_row_num, sel_col_num)
 
     def __move_rule_higer(self):
-        # TODO реализовать функционал перемещения комбинации в списке на позицию выше
-        print('Смотри TODO')
+        sel_row_num = self.ui.tableWidget.currentRow()
+        sel_col_num = self.ui.tableWidget.currentColumn()
+        if sel_row_num > 0:
+            sel_rule_id = int(self.ui.tableWidget.item(sel_row_num, 0).text())
+            ok = self.__base.move_rule_higer(sel_rule_id)
+            self.update_table()
+            if ok:
+                self.ui.tableWidget.setCurrentCell(sel_row_num - 1, sel_col_num)
 
     def __move_rule_lower(self):
-        # TODO реализовать функционал перемещения комбинации в списке на позицию ниже
-        print('Смотри TODO')
+        sel_row_num = self.ui.tableWidget.currentRow()
+        sel_col_num = self.ui.tableWidget.currentColumn()
+        max_row_num = self.ui.tableWidget.rowCount() - 1
+        if sel_row_num < max_row_num:
+            sel_rule_id = int(self.ui.tableWidget.item(sel_row_num, 0).text())
+            ok = self.__base.move_rule_lower(sel_rule_id)
+            self.update_table()
+            if ok:
+                self.ui.tableWidget.setCurrentCell(sel_row_num + 1, sel_col_num)
 
     def __get_param_w_hidden_win_start_from_base(self):
         return self.__base.get_parameter('w_hidden_win_start') == 'True'

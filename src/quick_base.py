@@ -238,9 +238,9 @@ class BaseManager():
             sqlite_base = sqlite3.connect(self.__conf_file_name)
             cursor = sqlite_base.cursor()
 
-            move_top_req = f'UPDATE RULES SET Num=(SELECT MAX(RULES.Num) + 1 FROM RULES) WHERE ID={rule_id};\n' \
-                           f'UPDATE RULES SET Num=Num + 1 WHERE Num<{cur_rule_num};\n' \
-                           f'UPDATE RULES SET Num=1 WHERE ID={rule_id};'
+            move_top_req = f'UPDATE RULES SET Num = (SELECT MAX(RULES.Num) + 1 FROM RULES) WHERE ID = {rule_id};\n' \
+                           f'UPDATE RULES SET Num = Num + 1 WHERE Num<{cur_rule_num};\n' \
+                           f'UPDATE RULES SET Num = 1 WHERE ID = {rule_id};'
 
             ok = False
             attempts_q = 5
@@ -285,8 +285,8 @@ class BaseManager():
             sqlite_base = sqlite3.connect(self.__conf_file_name)
             cursor = sqlite_base.cursor()
 
-            move_bottom_req = f'UPDATE RULES SET Num=(SELECT MAX(RULES.Num) + 1 FROM RULES) WHERE ID={rule_id};\n' \
-                              f'UPDATE RULES SET Num=Num - 1 WHERE Num>{cur_rule_num};\n'
+            move_bottom_req = f'UPDATE RULES SET Num = (SELECT MAX(RULES.Num) + 1 FROM RULES) WHERE ID = {rule_id};\n' \
+                              f'UPDATE RULES SET Num = Num - 1 WHERE Num>{cur_rule_num};\n'
 
             ok = False
             attempts_q = 5
@@ -323,6 +323,100 @@ class BaseManager():
             sqlite_base = ''
 
             return ok
+
+    def move_rule_higer(self, rule_id):
+        if rule_id != None:
+            cur_rule_num = self.get_rule_by_id(rule_id)[1]
+
+            sqlite_base = sqlite3.connect(self.__conf_file_name)
+            cursor = sqlite_base.cursor()
+
+            move_higer_req = f'UPDATE RULES SET Num = (SELECT MAX(RULES.Num) + 1 FROM RULES) WHERE ID = {rule_id};\n' \
+                             f'UPDATE RULES SET Num = {cur_rule_num} WHERE ID = (SELECT ID FROM RULES WHERE NUM < {cur_rule_num} ORDER by NUM DESC LIMIT 1);\n' \
+                             f'UPDATE RULES SET Num = {cur_rule_num} - 1 WHERE ID = {rule_id};\n'
+
+        ok = False
+        attempts_q = 5
+        attempts_num = 0;
+
+        # print(move_higer_req)
+
+        while (attempts_num < attempts_q) and (not ok):
+            attempts_num += 1
+            ok = True
+            try:
+                cursor.executescript(move_higer_req)
+            except:
+                ok = False
+                print(traceback.print_exc())
+                sleep(1)
+        if ok:
+            ok = False
+            attempts_q = 5
+            attempts_num = 0;
+
+            while (attempts_num < attempts_q) and (not ok):
+                attempts_num += 1
+                ok = True
+                try:
+                    sqlite_base.commit()
+                except:
+                    ok = False
+                    print(traceback.print_exc())
+                    sleep(1)
+
+        cursor = ''
+        sqlite_base.close()
+        sqlite_base = ''
+
+        return ok
+
+    def move_rule_lower(self, rule_id):
+        if rule_id != None:
+            cur_rule_num = self.get_rule_by_id(rule_id)[1]
+
+            sqlite_base = sqlite3.connect(self.__conf_file_name)
+            cursor = sqlite_base.cursor()
+
+            move_lower_req = f'UPDATE RULES SET Num = (SELECT MAX(RULES.Num) + 1 FROM RULES) WHERE ID = {rule_id};\n' \
+                             f'UPDATE RULES SET Num = {cur_rule_num} WHERE ID = (SELECT ID FROM RULES WHERE NUM > {cur_rule_num} ORDER by NUM LIMIT 1);\n' \
+                             f'UPDATE RULES SET Num = {cur_rule_num} + 1 WHERE ID = {rule_id};\n'
+
+        ok = False
+        attempts_q = 5
+        attempts_num = 0;
+
+        # print(move_lower_req)
+
+        while (attempts_num < attempts_q) and (not ok):
+            attempts_num += 1
+            ok = True
+            try:
+                cursor.executescript(move_lower_req)
+            except:
+                ok = False
+                print(traceback.print_exc())
+                sleep(1)
+        if ok:
+            ok = False
+            attempts_q = 5
+            attempts_num = 0;
+
+            while (attempts_num < attempts_q) and (not ok):
+                attempts_num += 1
+                ok = True
+                try:
+                    sqlite_base.commit()
+                except:
+                    ok = False
+                    print(traceback.print_exc())
+                    sleep(1)
+
+        cursor = ''
+        sqlite_base.close()
+        sqlite_base = ''
+
+        return ok
 
     def remove_rule(self, rule_id):
         if rule_id != None:

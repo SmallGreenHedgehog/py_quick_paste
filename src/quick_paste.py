@@ -42,7 +42,7 @@ class ConfigWindowForm(QtWidgets.QWidget):
         self.ui.pushButton_move_top.clicked.connect(self.__move_rule_top)
         self.ui.pushButton_move_higer.clicked.connect(self.__move_rule_higer)
         self.ui.pushButton_move_lower.clicked.connect(self.__move_rule_lower)
-        self.ui.pushButton_move_lower.clicked.connect(self.__move_rule_bottom)
+        self.ui.pushButton_move_bottom.clicked.connect(self.__move_rule_bottom)
 
         self.ui.pushButton_hide.clicked.connect(self.hide_window)
 
@@ -96,8 +96,15 @@ class ConfigWindowForm(QtWidgets.QWidget):
                 self.ui.tableWidget.setCurrentCell(0, sel_col_num)
 
     def __move_rule_bottom(self):
-        # TODO реализовать функционал перемещения комбинации в конец списка
-        print('Смотри TODO')
+        sel_row_num = self.ui.tableWidget.currentRow()
+        sel_col_num = self.ui.tableWidget.currentColumn()
+        if not sel_row_num < 0:
+            sel_rule_id = int(self.ui.tableWidget.item(sel_row_num, 0).text())
+            ok = self.__base.move_rule_bottom(sel_rule_id)
+            self.update_table()
+            if ok:
+                max_row_num = self.ui.tableWidget.rowCount() - 1
+                self.ui.tableWidget.setCurrentCell(max_row_num, sel_col_num)
 
     def __move_rule_higer(self):
         # TODO реализовать функционал перемещения комбинации в списке на позицию выше
@@ -327,6 +334,7 @@ class SystemMangerWithIcon(QtWidgets.QSystemTrayIcon):
 
     def select_template_event(self, last_comb_found):
         # print('COMBINATION SLOT FUNC')
+        # TODO реализовать функционал отображения выпадающего меню на месте курсора мыши на любом столе
 
         templates_list = self.__base.get_list_rules_by_comb(last_comb_found)
         if len(templates_list) == 1:

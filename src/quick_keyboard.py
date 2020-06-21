@@ -51,29 +51,38 @@ class KeyMonitor(QObject):
     def stop_listen(self):
         self.__listener.stop()
 
+    def __new__(cls):  # Singleton
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(KeyMonitor, cls).__new__(cls)
+            cls.instance.__initialized = False
+        return cls.instance
+
     def __init__(self, parent=None):
-        super(KeyMonitor, self).__init__()
+        if not self.__initialized:
+            super(KeyMonitor, self).__init__()
 
-        self.__listener = ''
-        self.__search_combs = []
-        self.__pressed = set()
-        self.__col_pressed = 0
-        self.__is_get_comb = False
-        self.__max_key_count_comb = 1
-        self._max_combination = set()
-        self.__last_comb_found = set()
-        self.__all_keys_was_released_in_interval = False
-        self.__timer_clear_released = Timer(3, self.__sticky_keys_check_stick)
+            self.__listener = ''
+            self.__search_combs = []
+            self.__pressed = set()
+            self.__col_pressed = 0
+            self.__is_get_comb = False
+            self.__max_key_count_comb = 1
+            self._max_combination = set()
+            self.__last_comb_found = set()
+            self.__all_keys_was_released_in_interval = False
+            self.__timer_clear_released = Timer(3, self.__sticky_keys_check_stick)
 
-        # TODO исправить баг заполнения кодов "не в той раскладке"
-        # Заполняем список кодов
-        self.__keys_map = get_us_unicode_to_keycode_map().copy()
+            # Заполняем список кодов
+            self.__keys_map = get_us_unicode_to_keycode_map().copy()
 
-        self.__listener = keyboard.Listener(
-            on_press=self.__on_press,
-            on_release=self.__on_release
-        )
-        self.start_listen()
+            self.__listener = keyboard.Listener(
+                on_press=self.__on_press,
+                on_release=self.__on_release
+            )
+            self.start_listen()
+
+            self.__initialized = True
+
 
     def start_get_comb(self):
         self._max_combination = set()
@@ -160,7 +169,7 @@ class KeyMonitor(QObject):
     def update_search_combs(self, rules_list):
         self.__search_combs.clear()
         for rule in rules_list:
-            search_comb = self.get_set_comb_from_str(rule[1])
+            search_comb = self.get_set_comb_from_str(rule[2])
             self.__search_combs.append(search_comb)
 
     def get_keyboard_layout(self):
@@ -200,13 +209,14 @@ class KeyMonitor(QObject):
         cont.release(keyboard.Key.cmd)
         cont = ''
 
-    def click_mouse_on_tray_icon_menu(self, tray_icon_x_pos):
+    def click_mouse_on_tray_icon_menu(self, tray_icon_x_pos, move_to_first_menu_item = False):
         cont = mouse.Controller()
         current_pos = cont.position
         cont.move(tray_icon_x_pos - current_pos[0], 0 - current_pos[1])
         sleep(0.25)
         cont.click(mouse.Button.left, 1)
-        cont.move(0, 55)
+        if move_to_first_menu_item:
+            cont.move(0, 35)
         cont = ''
 
     def pos_mouse(self, x_pos, y_pos):

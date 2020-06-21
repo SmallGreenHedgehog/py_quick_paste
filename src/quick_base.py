@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os, shutil
 import sqlite3
+import sys
 import traceback
 from time import sleep
 
@@ -23,9 +24,10 @@ class BaseManager():
             self.__initialized = True
 
     def get_version_from_txt(self):
+        version_path = os.path.join(os.path.dirname(sys.argv[0]), './version')
         result = ''
         try:
-            with open('./src/version', 'r') as version_file:
+            with open(version_path, 'r') as version_file:
                 result = version_file.read()
         except:
             print(traceback.print_exc())

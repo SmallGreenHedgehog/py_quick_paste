@@ -347,7 +347,6 @@ class SystemMangerWithIcon(QtWidgets.QSystemTrayIcon):
 
     def select_template_event(self, last_comb_found):
         # print('COMBINATION SLOT FUNC')
-        # TODO реализовать функционал отображения выпадающего меню на месте курсора мыши на любом столе
 
         templates_list = self.__base.get_list_rules_by_comb(last_comb_found)
         if len(templates_list) == 1:
@@ -360,6 +359,8 @@ class SystemMangerWithIcon(QtWidgets.QSystemTrayIcon):
             single_temp_act.triggered.emit()
         else:
             self.fill_templates_menu(templates_list)
+            
+            # TODO реализовать функционал отображения выпадающего меню на месте курсора мыши на любом столе
             self.setContextMenu(self.templates_menu)
             self.__last_cursor_pos = QtGui.QCursor().pos()
             self.__keys.click_mouse_on_tray_icon_menu(self.__tray_icon_x_pos,

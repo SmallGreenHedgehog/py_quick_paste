@@ -300,7 +300,7 @@ class SystemMangerWithIcon(QtWidgets.QSystemTrayIcon):
             tmp_clipboard = pyperclip.paste()
 
         rule_id = self.sender().property('rule_id')
-        rule_txt = self.__base.get_rule_by_id(rule_id)[3]
+        rule_txt = self.__base.get_rule_by_id(rule_id)[4]
         pyperclip.copy(rule_txt)  # Помещаем текст выбранного шаблона в буффер
         sleep(0.2)
         self.__keys.cmd_paste()  # Вызываем комбинацию встаки из буфера обмена

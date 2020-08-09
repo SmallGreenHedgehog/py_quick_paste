@@ -1,9 +1,4 @@
-.idea/.gitignore
-.idea/inspectionProfiles/
-.idea/misc.xml
-.idea/modules.xml
-.idea/py_quick_paste.iml
-.idea/vcs.xml
+.idea
 __pycache__/
 config.db
 testdababase.db
